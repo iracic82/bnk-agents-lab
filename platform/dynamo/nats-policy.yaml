@@ -1,0 +1,32 @@
+# Dynamo's NATS (dynamo-platform chart, global.nats.install=true) has no authentication. Without this
+# policy any pod in the cluster could read every tenant's KV-cache events or publish fake ones, which would
+# steer BNK's Endpoint Picker. Only these may connect on 4222:
+#   - namespaces labelled tenancy.f5.com/engine=dynamo: the Dynamo workers and frontend, and the BNK
+#     Endpoint Picker the tenancy controller puts in the same namespace (platform/dynamo/deploy.sh labels it)
+#   - dynamo-system itself (the operator)
+# Calico enforces NetworkPolicy in this cluster. Traffic from the node itself (kubelet probes) stays allowed.
+#
+# Limit: this keeps non-Dynamo pods out, but every Dynamo tenant shares one unauthenticated NATS. With two or
+# more Dynamo tenants, any of them could read the others' KV-cache events or publish fake ones and steer
+# their Endpoint Picker. Safe today only because the lab has a single Dynamo tenant (runai-dynamo). Before
+# adding a second: per-tenant NATS accounts limited to that tenant's subjects, with the controller giving each
+# tenant's F5EPP only its own credentials, or one NATS per tenant.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: nats-dynamo-clients-only
+  namespace: dynamo-system
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: nats
+      app.kubernetes.io/instance: dynamo-platform
+  policyTypes: [Ingress]
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels: {tenancy.f5.com/engine: dynamo}
+    - namespaceSelector:
+        matchLabels: {kubernetes.io/metadata.name: dynamo-system}
+    ports:
+    - {protocol: TCP, port: 4222}

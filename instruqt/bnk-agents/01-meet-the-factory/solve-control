@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Nothing to do: setup creates the three tenants. The learner only looks around.
+exit 0

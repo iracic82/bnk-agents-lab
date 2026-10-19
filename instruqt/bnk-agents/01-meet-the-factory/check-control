@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+export KUBECONFIG=/etc/kubernetes/admin.conf
+[ "$(kubectl get nodes --no-headers | grep -c ' Ready ')" -ge 4 ] || { fail-message "Not all four nodes are Ready yet."; exit 1; }
+kubectl get pods -n f5-bnk -l app=f5-tmm --no-headers | grep -q Running || { fail-message "BNK TMM is not running."; exit 1; }
+kubectl -n bnk-runai-tenancy get deploy bnk-runai-tenancy -o jsonpath='{.status.readyReplicas}' | grep -q 1 || { fail-message "The tenancy controller is not running yet."; exit 1; }
+for t in tenant-a tenant-b dynamo; do
+  addr=$(kubectl get gateway -n f5-bnk "$t" -o jsonpath='{.status.addresses[0].value}' 2>/dev/null)
+  [ -n "$addr" ] || { fail-message "BNK has no front door for $t yet. Run: kubectl get gateway -n f5-bnk"; exit 1; }
+done
+rl=$(labctl tenant show tenant-b --json 2>/dev/null | jq -r '.bnk.rateLimitRps // empty')
+[ "$rl" = 10 ] || { fail-message "tenant-b's BNK rate limit is ${rl:-unknown}, expected 10 req/s (0.5 GPU). Run: labctl tenant show tenant-b"; exit 1; }
+exit 0

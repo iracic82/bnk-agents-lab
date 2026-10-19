@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# Track setup, run on the control node: cluster + BNK 2.4, then Run:ai, then the lab layer.
+# Each stage logs to /root/setup/*.log; failures stop the setup with the stage named.
+set -uo pipefail
+export DEBIAN_FRONTEND=noninteractive
+LAB_ROOT="${LAB_ROOT:-/root/lab}"
+install -d -m 700 /root/setup
+fail() { echo "SETUP FAILED: $*" >&2; exit 1; }
+
+# Ubuntu's unattended-upgrades grabs the dpkg lock at boot; apt waits for it instead of failing.
+echo 'DPkg::Lock::Timeout "900";' > /etc/apt/apt.conf.d/99lab-lock-timeout
+systemctl disable --now unattended-upgrades apt-daily.timer apt-daily-upgrade.timer >/dev/null 2>&1 || true
+apt-get update -qq && apt-get install -y -qq git curl ca-certificates jq >/dev/null
+if [ ! -d "$LAB_ROOT/.git" ]; then
+  auth=""
+  [ -n "${GH_READ_TOKEN:-}" ] && auth="Authorization: Basic $(printf 'x-access-token:%s' "$GH_READ_TOKEN" | base64 | tr -d '\n')"
+  GIT_CONFIG_COUNT=$([ -n "$auth" ] && echo 1 || echo 0) \
+  GIT_CONFIG_KEY_0="http.https://github.com/.extraheader" GIT_CONFIG_VALUE_0="$auth" \
+    git clone -q --depth 1 "https://${LAB_REPO:-github.com/iracic82/bnk-agents-lab.git}" "$LAB_ROOT" \
+    || fail "could not clone the lab repo (GH_READ_TOKEN?)"
+fi
+
+bash "$LAB_ROOT/platform/cluster/setup-cluster.sh" 2>&1 | tee /root/setup/cluster.log
+[ "${PIPESTATUS[0]}" = 0 ] || fail "cluster + BNK setup, see /root/setup/cluster.log"
+
+bash "$LAB_ROOT/platform/runai/install.sh" 2>&1 | tee /root/setup/runai.log
+[ "${PIPESTATUS[0]}" = 0 ] || fail "Run:ai install, see /root/setup/runai.log"
+
+# Lab layer: the tenancy controller, the token meter, Prometheus + Grafana, and the browser for the Run:ai UI.
+step() { echo "==== $(date +%H:%M:%S) $*"; }
+{
+  # Stop at the first failed step, so a broken lab layer fails setup instead of finishing quietly.
+  set -e
+  step "tenancy controller + token meter (Helm chart)"
+  # Prometheus Operator CRDs already exist (the Run:ai install adds them), so the chart's monitors render.
+  command -v helm >/dev/null || fail "helm missing"
+  helm upgrade --install bnk-runai-tenancy "$LAB_ROOT/charts/bnk-runai-tenancy" \
+    --namespace bnk-runai-tenancy --create-namespace --set monitoring.enabled=true --wait --timeout 5m
+  kubectl -n bnk-runai-tenancy rollout status deploy/bnk-runai-tenancy --timeout=300s
+  kubectl -n bnk-runai-tenancy rollout status deploy/bnk-runai-meter --timeout=300s
+  step "NVIDIA Dynamo platform (operator + NATS)"
+  bash "$LAB_ROOT/platform/dynamo/install.sh"
+  step "MCP servers: NVIDIA runai-mcp-server + bnk-tenancy-mcp"
+  bash "$LAB_ROOT/platform/mcp/install.sh"
+  # The agents' LLM key, from the Instruqt secret, readable by root only. The agent team needs it.
+  if [ -n "${LLM_API_KEY:-}" ]; then
+    install -d -m 700 /root/.config/lab
+    ( umask 077; printf 'LLM_API_KEY=%s\n' "$LLM_API_KEY" > /root/.config/lab/llm.env )
+  fi
+  step "Prometheus + Grafana"
+  bash "$LAB_ROOT/platform/observability/install.sh"
+  step "interactive lab topology"
+  bash "$LAB_ROOT/platform/topology/install.sh"
+  step "browser for the Run:ai UI"
+  bash "$LAB_ROOT/platform/browser/install.sh"
+} 2>&1 | tee /root/setup/lab.log
+[ "${PIPESTATUS[0]}" = 0 ] || fail "lab layer, see /root/setup/lab.log"
+
+# kubectl works on every node, not only control.
+for n in dpu gpu runai; do
+  ssh -o StrictHostKeyChecking=no -o BatchMode=yes "root@$n" 'install -d -m 700 /root/.kube' && \
+    scp -q -o StrictHostKeyChecking=no /etc/kubernetes/admin.conf "root@$n:/root/.kube/config" || true
+done
+
+ln -sf "$LAB_ROOT/labctl/labctl" /usr/local/bin/labctl
+
+# The factory the learner meets in challenge 1, already running: two vLLM tenants and NVIDIA Dynamo.
+# tenant-b gets 0.5 GPU, so its BNK limit is 10 req/s; the agents raise it later.
+step "tenants: tenant-a, tenant-b, dynamo"
+{
+  set -e
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+  labctl tenant create tenant-a --gpu 2 --priority 150
+  labctl tenant create tenant-b --gpu 0.5 --priority 50
+  labctl model deploy tenant-a --fraction 0.5
+  labctl model deploy tenant-b --fraction 0.5
+  bash "$LAB_ROOT/platform/dynamo/deploy.sh"
+} 2>&1 | tee /root/setup/tenants.log
+[ "${PIPESTATUS[0]}" = 0 ] || fail "tenants, see /root/setup/tenants.log"
+
+# The Instruqt terminal does not source .bashrc; make every shell land in the lab with kubectl ready.
+cat > /etc/profile.d/lab.sh <<PROF
+export KUBECONFIG=/etc/kubernetes/admin.conf
+export LAB_ROOT=$LAB_ROOT
+cd $LAB_ROOT 2>/dev/null || true
+PROF
+echo "SETUP DONE"
