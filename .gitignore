@@ -1,0 +1,26 @@
+.env
+*.jwt
+*far*
+cne_pull*.json
+.local-dev/
+bin/
+*.log
+*.test
+*.out
+vendor/
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+kubeconfig*
+*.key
+secrets/
+
+# local planning and assistant tooling, not part of the lab
+.claude/
+specs/
+
+# local scratch
+.DS_Store
+__pycache__/
+.venv/
