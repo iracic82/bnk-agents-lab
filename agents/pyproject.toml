@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bnk-agents"
+version = "0.1.0"
+description = "NeMo Agent Toolkit agents that run the AI factory through Run:ai MCP and bnk-tenancy-mcp"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+  "nvidia-nat[mcp,langchain]==1.9.0",
+]
+
+[project.entry-points."nat.components"]
+bnk_agents = "bnk_agents.register"
+
+[tool.setuptools.packages.find]
+where = ["src"]

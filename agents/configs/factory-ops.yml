@@ -1,0 +1,73 @@
+# The agent team that runs the AI factory. run.sh sets the environment variables.
+#   monitor   reads BNK (bnk-tenancy-mcp) and Run:ai projects; it has no way to change anything
+#   operator  proposes one Run:ai quota change through approved_quota_change, which a person approves
+#   lead      asks the monitor for facts and hands the operator a proposal
+llms:
+  nemotron:
+    _type: openai
+    base_url: ${LLM_BASE_URL}
+    model_name: ${LLM_MODEL}
+    api_key: ${LLM_API_KEY}
+    temperature: 0.0
+    max_tokens: 2048
+
+function_groups:
+  bnk:
+    _type: mcp_client
+    server:
+      transport: streamable-http
+      url: ${BNK_MCP_URL}
+      custom_headers:
+        Authorization: Bearer ${BNK_MCP_TOKEN}
+  runai:
+    _type: mcp_client
+    server:
+      transport: streamable-http
+      url: ${RUNAI_MCP_URL}
+      custom_headers:
+        Authorization: Bearer ${RUNAI_TOKEN}
+    # manage_org_unit is loaded for approved_quota_change only; no agent lists it as a tool.
+    include: [list_projects, manage_org_unit]
+
+functions:
+  approved_quota_change:
+    _type: approved_quota_change
+    runai_group: runai
+    projects: [tenant-a, tenant-b]
+    rps_per_gpu: 20
+    max_gpu: 4
+
+  monitor:
+    _type: react_agent
+    llm_name: nemotron
+    tool_names: [bnk]
+    max_iterations: 8
+    verbose: true
+    description: |
+      Reports facts about the AI factory's tenants as seen at the BNK edge: each tenant's front door,
+      its BNK rate limit in requests per second, its 429 (refused) rate and its token usage.
+      Input: a question about one tenant or all tenants. It can only read, never change anything.
+
+  operator:
+    _type: react_agent
+    llm_name: nemotron
+    tool_names: [approved_quota_change]
+    max_iterations: 4
+    verbose: true
+    description: |
+      Proposes a new Run:ai GPU quota for one tenant. A person approves or declines; nothing changes
+      without approval. Input: the tenant and the GPU quota to propose, with the reason.
+
+workflow:
+  _type: react_agent
+  llm_name: nemotron
+  tool_names: [monitor, operator]
+  max_iterations: 10
+  verbose: true
+  additional_instructions: |
+    You lead a small team that runs an AI factory. NVIDIA Run:ai gives each tenant a GPU quota. F5 BNK
+    holds each tenant to 20 requests per second for every GPU of quota and answers 429 above that. A
+    controller updates BNK by itself when the Run:ai quota changes, so never try to change BNK.
+    Ask the monitor for the facts first. If a tenant is being refused, work out the smallest GPU quota
+    whose BNK limit covers its traffic, in steps of 0.5 GPU, and ask the operator to propose it. If the
+    operator says the change was declined, stop and report that; do not ask again.

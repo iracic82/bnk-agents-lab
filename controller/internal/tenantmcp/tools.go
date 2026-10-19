@@ -53,6 +53,7 @@ type Config struct {
 type Tools struct {
 	Reader client.Reader
 	Config Config
+	Rates  Rates // nil when no Prometheus is configured; get_tenant_rejections then reports that
 }
 
 // ProjectInput is the argument of the per-tenant tools.
@@ -297,6 +298,18 @@ func NewServer(t *Tools, version string) *mcp.Server {
 		Annotations: ro,
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in ProjectInput) (*mcp.CallToolResult, Usage, error) {
 		out, err := t.Usage(ctx, in.Project)
+		return nil, out, err
+	})
+
+	mcp.AddTool(s, &mcp.Tool{
+		Name:  "get_tenant_rejections",
+		Title: "Get a tenant's 429 rate at BNK",
+		Description: "Return how many of one Run:ai project's requests per second BNK is refusing with 429 over the " +
+			"last minute, how many it serves, the total the tenant is sending, and its BNK rate limit. " +
+			"throttled=true means the tenant is sending more than its limit.",
+		Annotations: ro,
+	}, func(ctx context.Context, _ *mcp.CallToolRequest, in ProjectInput) (*mcp.CallToolResult, Rejections, error) {
+		out, err := t.Rejections(ctx, in.Project)
 		return nil, out, err
 	})
 

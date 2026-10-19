@@ -102,7 +102,7 @@ if ! kubectl -n "$TENANCY_NS" get secret bnk-tenancy-mcp-token >/dev/null 2>&1; 
     --from-literal=token="$(head -c 32 /dev/urandom | base64 | tr -d '/+=' | head -c 40)" >/dev/null
   echo "  created secret $TENANCY_NS/bnk-tenancy-mcp-token"
 fi
-sed "s#image: docker.io/iracic82/bnk-tenancy-mcp:.*#image: ${BNK_TENANCY_MCP_IMAGE}#" \
+sed "s#image: docker.io/iracic82/bnk-agents-tenancy-mcp:.*#image: ${BNK_TENANCY_MCP_IMAGE}#" \
   "${LAB_ROOT}/controller/config/mcp.yaml" | kubectl apply -f -
 kubectl -n "$TENANCY_NS" rollout status deploy/bnk-tenancy-mcp --timeout=180s
 

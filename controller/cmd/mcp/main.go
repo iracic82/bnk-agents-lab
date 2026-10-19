@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -25,24 +26,25 @@ import (
 	"github.com/f5devcentral/bnk-runai-tenancy/internal/tenantmcp"
 )
 
-var version = "0.1.0"
+var version = "0.2.0"
 
 func main() {
-	var listen, tokenFile, bnkNS, ledgerNS string
+	var listen, tokenFile, bnkNS, ledgerNS, promURL string
 	flag.StringVar(&listen, "listen", ":8090", "address for /mcp and /healthz")
 	flag.StringVar(&tokenFile, "token-file", "", "file holding the bearer token clients must present (required)")
 	flag.StringVar(&bnkNS, "bnk-namespace", "f5-bnk", "namespace of the tenant Gateways and iRules")
 	flag.StringVar(&ledgerNS, "ledger-namespace", "bnk-runai-tenancy", "namespace of the bnk-runai-usage ledger ConfigMap")
+	flag.StringVar(&promURL, "prometheus-url", "", "Prometheus base URL for get_tenant_rejections (empty: the tool reports it is not configured)")
 	flag.Parse()
 	log := slog.New(slog.NewJSONHandler(os.Stderr, nil))
 
-	if err := run(listen, tokenFile, tenantmcp.Config{BNKNamespace: bnkNS, LedgerNamespace: ledgerNS}, log); err != nil {
+	if err := run(listen, tokenFile, promURL, tenantmcp.Config{BNKNamespace: bnkNS, LedgerNamespace: ledgerNS}, log); err != nil {
 		log.Error("bnk-tenancy-mcp stopped", "err", err)
 		os.Exit(1)
 	}
 }
 
-func run(listen, tokenFile string, cfg tenantmcp.Config, log *slog.Logger) error {
+func run(listen, tokenFile, promURL string, cfg tenantmcp.Config, log *slog.Logger) error {
 	if tokenFile == "" {
 		return errors.New("--token-file is required")
 	}
@@ -64,7 +66,11 @@ func run(listen, tokenFile string, cfg tenantmcp.Config, log *slog.Logger) error
 	if err != nil {
 		return err
 	}
-	srv := tenantmcp.NewServer(&tenantmcp.Tools{Reader: c, Config: cfg}, version)
+	tools := &tenantmcp.Tools{Reader: c, Config: cfg}
+	if promURL != "" {
+		tools.Rates = &tenantmcp.PrometheusRates{BaseURL: strings.TrimRight(promURL, "/")}
+	}
+	srv := tenantmcp.NewServer(tools, version)
 
 	httpSrv := &http.Server{
 		Addr:              listen,

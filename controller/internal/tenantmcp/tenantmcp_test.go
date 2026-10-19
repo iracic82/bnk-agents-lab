@@ -264,7 +264,7 @@ func TestStatelessToolsListAndCall(t *testing.T) {
 			t.Errorf("%s required = %v", tl.Name, tl.InputSchema.Required)
 		}
 	}
-	for _, want := range []string{"get_tenant_front_door", "get_tenant_usage", "list_tenants"} {
+	for _, want := range []string{"get_tenant_front_door", "get_tenant_usage", "get_tenant_rejections", "list_tenants"} {
 		if !names[want] {
 			t.Errorf("missing tool %s (have %v)", want, names)
 		}

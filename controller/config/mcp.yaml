@@ -92,12 +92,14 @@ spec:
       securityContext: {runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, fsGroup: 65532, seccompProfile: {type: RuntimeDefault}}
       containers:
         - name: mcp
-          image: docker.io/iracic82/bnk-tenancy-mcp:0.1.0
+          image: docker.io/iracic82/bnk-agents-tenancy-mcp:0.2.0
           args:
             - --listen=:8090
             - --token-file=/var/run/bnk-tenancy-mcp/token
             - --bnk-namespace=f5-bnk
             - --ledger-namespace=bnk-runai-tenancy
+            # get_tenant_rejections reads 429 rates from kube-prometheus-stack (platform/observability/install.sh)
+            - --prometheus-url=http://kube-prometheus-stack-prometheus.monitoring.svc:9090
           ports:
             - {name: mcp, containerPort: 8090, protocol: TCP}
           livenessProbe: {httpGet: {path: /healthz, port: mcp}, periodSeconds: 20}

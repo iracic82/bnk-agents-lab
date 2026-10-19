@@ -1,0 +1,17 @@
+Serve Run:ai MCP over stateless Streamable HTTP, so it speaks MCP 2026-07-28 (sessionless, server/discover)
+and needs no session affinity. Every tool is already one request with the caller's own token. Update and
+delete confirmations still work: without a session the server can't elicit, so it falls back to
+confirmation_required until the call carries confirm=true (common.ConfirmWrite).
+
+--- a/runai-mcp-server/internal/http/oauth.go
++++ b/runai-mcp-server/internal/http/oauth.go
+@@ -50,7 +50,8 @@ func protectedMCPHandler(getServer func(context.Context) (*mcp.Server, error), v
+ 					http.Error(w, "server not ready", http.StatusServiceUnavailable)
+ 					return
+ 				}
+-				mcpHandler = mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return srv }, nil)
++				mcpHandler = mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return srv },
++					&mcp.StreamableHTTPOptions{Stateless: true})
+ 			}
+ 			h = mcpHandler
+ 			mu.Unlock()

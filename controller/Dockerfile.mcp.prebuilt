@@ -1,0 +1,6 @@
+# Same runtime image as Dockerfile.mcp, from a binary built on the host (make mcp-image-hostgo). For hosts
+# behind a TLS-intercepting proxy, where `go mod download` inside the golang build stage fails.
+FROM gcr.io/distroless/static:nonroot
+COPY dist/bnk-tenancy-mcp-linux-amd64 /bnk-tenancy-mcp
+USER 65532:65532
+ENTRYPOINT ["/bnk-tenancy-mcp"]
