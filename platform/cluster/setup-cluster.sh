@@ -374,10 +374,20 @@ LIC
   esac
 done
 [ -z "$lic_err" ] || fail "could not apply the License: ${lic_err}"
+lic_state=""
 for _ in $(seq 1 60); do
-  [ "$(kubectl get license.k8s.f5net.com f5-cne-cluster-license -n f5-cne-core -o jsonpath='{.status.state}' 2>/dev/null)" = "Active" ] && break
+  lic_state="$(kubectl get license.k8s.f5net.com f5-cne-cluster-license -n f5-cne-core -o jsonpath='{.status.state}' 2>/dev/null)"
+  [ "$lic_state" = "Active" ] && { echo "  licence Active"; break; }
   sleep 5
 done
+# Without an Active licence BNK never programs TMM's VLANs and self-IPs, so every VIP is dead. Say why
+# now rather than failing later on a silent self-IP.
+if [ "$lic_state" != "Active" ]; then
+  echo "  ERROR: the BNK licence is not Active after 5 minutes (state: ${lic_state:-none}). Check the BNK_LICENSE_JWT secret." >&2
+  kubectl get license.k8s.f5net.com f5-cne-cluster-license -n f5-cne-core -o jsonpath='{.status}{"\n"}' >&2 2>/dev/null || true
+  kubectl get events -n f5-cne-core --sort-by=.lastTimestamp 2>/dev/null | grep -i licen | tail -10 >&2 || true
+  exit 1
+fi
 
 step "waiting for the TMM containers"
 # Wait for TMM's containers, not for the pod's Ready condition. The pod carries two readiness gates that
