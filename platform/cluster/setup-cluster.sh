@@ -129,8 +129,10 @@ ensure_tmm_external() {
     sleep 20
     kubectl wait -n f5-bnk --for=condition=Ready pod -l app=f5-tmm --timeout=240s || true
   done
-  echo "  WARNING: TMM external self-IP 10.1.10.201 still not answering; BNK VIPs will not work" >&2
-  return 0
+  # Carrying on would only spend the rest of the setup time on a lab with no working VIPs.
+  echo "  ERROR: TMM external self-IP 10.1.10.201 still not answering after a TMM restart. BNK VIPs will not work." >&2
+  kubectl get pods -n f5-bnk -l app=f5-tmm -o wide >&2 || true
+  exit 1
 }
 
 node_prereqs
@@ -362,12 +364,25 @@ for _ in $(seq 1 60); do
 done
 
 step "waiting for the TMM DaemonSet"
-for _ in $(seq 1 120); do
+# A TMM pod that isn't Ready after 5 minutes rarely recovers by itself; recreating it is the known fix
+# (see ensure_tmm_external). So recreate once at 5 minutes, and stop setup if it's still not Ready at 12.
+tmm_ready=0
+for i in $(seq 1 72); do
   kubectl get ds -n f5-bnk f5-tmm >/dev/null 2>&1 && \
     [ "$(kubectl get ds -n f5-bnk f5-tmm -o jsonpath='{.status.numberReady}' 2>/dev/null || echo 0)" -ge 1 ] && \
-    { echo "  f5-tmm ready"; break; }
+    { echo "  f5-tmm ready"; tmm_ready=1; break; }
+  if [ "$i" = 30 ] && kubectl get pods -n f5-bnk -l app=f5-tmm --no-headers 2>/dev/null | grep -q .; then
+    echo "  f5-tmm not Ready after 5 minutes; recreating the TMM pod"
+    kubectl delete pod -n f5-bnk -l app=f5-tmm --wait=true || true
+  fi
   sleep 10
 done
+if [ "$tmm_ready" != 1 ]; then
+  echo "  ERROR: f5-tmm not Ready after 12 minutes and one restart. BNK can't serve traffic." >&2
+  kubectl get pods -n f5-bnk -o wide >&2 || true
+  kubectl describe pods -n f5-bnk -l app=f5-tmm 2>&1 | tail -30 >&2 || true
+  exit 1
+fi
 
 
 step "TMM VLANs + self-IPs (external-vlan 1.1, internal-vlan 1.2)"
