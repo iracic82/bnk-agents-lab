@@ -10,6 +10,12 @@ llms:
     api_key: ${LLM_API_KEY}
     temperature: 0.0
     max_tokens: 2048
+    # Nemotron 3.5 reasons by default and can return the whole answer as reasoning with empty content,
+    # which the ReAct parser can't read. NAT's own `thinking` switch doesn't match this model id
+    # (its regex wants nvidia/llama* or nvidia/nvidia*), so turn thinking off in the request body.
+    extra_body:
+      chat_template_kwargs:
+        enable_thinking: false
 
 function_groups:
   bnk:

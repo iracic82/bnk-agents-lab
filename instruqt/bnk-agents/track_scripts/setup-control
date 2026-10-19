@@ -43,10 +43,11 @@ step() { echo "==== $(date +%H:%M:%S) $*"; }
   step "MCP servers: NVIDIA runai-mcp-server + bnk-tenancy-mcp"
   bash "$LAB_ROOT/platform/mcp/install.sh"
   # The agents' LLM key, from the Instruqt secret, readable by root only. The agent team needs it.
-  if [ -n "${LLM_API_KEY:-}" ]; then
-    install -d -m 700 /root/.config/lab
-    ( umask 077; printf 'LLM_API_KEY=%s\n' "$LLM_API_KEY" > /root/.config/lab/llm.env )
-  fi
+  [ -n "${LLM_API_KEY:-}" ] || fail "LLM_API_KEY secret is empty; the agent team can't run without it"
+  install -d -m 700 /root/.config/lab
+  ( umask 077; printf 'LLM_API_KEY=%s\n' "$LLM_API_KEY" > /root/.config/lab/llm.env )
+  step "agent team (NeMo Agent Toolkit)"
+  bash "$LAB_ROOT/agents/install.sh"
   step "Prometheus + Grafana"
   bash "$LAB_ROOT/platform/observability/install.sh"
   step "interactive lab topology"

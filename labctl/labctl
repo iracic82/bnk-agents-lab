@@ -59,6 +59,7 @@ labctl - BNK 2.4 x Run:ai lab CLI
   labctl load steady|overload|prefix-heavy [--tenant T] [--seconds S] [--rps R] [--json]
   labctl dash [panel]
   labctl verify <challenge>          e.g. 02 or 02-tenant-defined-once
+  labctl agents ["<question>"]       run the agent team; you approve any Run:ai change
 
 --priority takes a number (mapped to the nearest Run:ai rank at or below it: 255 Highest, 240,
 210, 180, 150 Medium, 100 MediumLow, 50 Low, 20, 1 Lowest) or a rank name such as High.
@@ -607,6 +608,7 @@ main() {
     load) cmd_load "$@" ;;
     dash) cmd_dash "$@" ;;
     verify) cmd_verify "$@" ;;
+    agents) exec bash "$LAB_ROOT/agents/run.sh" "$@" ;;
     routing) die "routing rr|epp is not available in this release: the tenancy controller owns each tenant's InferencePool and always wires the Endpoint Picker" ;;
     -h|--help|help|"") usage ;;
     *) usage >&2; exit 2 ;;
