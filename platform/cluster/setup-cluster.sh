@@ -132,8 +132,23 @@ ensure_tmm_external() {
   done
   # Carrying on would only spend the rest of the setup time on a lab with no working VIPs.
   echo "  ERROR: TMM external self-IP 10.1.10.201 still not answering after a TMM restart. BNK VIPs will not work." >&2
-  kubectl get pods -n f5-bnk -l app=f5-tmm -o wide >&2 || true
+  tmm_diagnostics >&2
+  [ "${LAB_KEEP_ON_TMM_FAIL:-0}" = 1 ] && { echo "  LAB_KEEP_ON_TMM_FAIL=1: continuing so the sandbox stays up for inspection" >&2; return 0; }
   exit 1
+}
+
+# What the external path looks like when the self-IP stays silent: each hop from control to TMM's leg.
+tmm_diagnostics() {
+  local pod; pod="$(kubectl get pods -n f5-bnk -l app=f5-tmm -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)"
+  echo "---- TMM diagnostics"
+  kubectl get pods -n f5-bnk -l app=f5-tmm -o wide || true
+  kubectl get pod -n f5-bnk "$pod" -o jsonpath='{.metadata.annotations.k8s\.v1\.cni\.cncf\.io/network-status}{"\n"}' || true
+  kubectl get f5-spk-vlans -n f5-bnk -o wide 2>/dev/null || kubectl get f5spkvlans -n f5-bnk -o yaml 2>/dev/null | grep -E "name:|status|message" || true
+  kubectl exec -n f5-bnk "$pod" -c debug -- tmctl -d blade interface_stat 2>&1 | head -20 || true
+  kubectl exec -n f5-bnk "$pod" -c debug -- ip -br addr 2>&1 | head -20 || true
+  echo "-- control"; ip -br addr show br1; ip neigh show dev br1 | head; ip route get 10.1.10.201 || true
+  for n in gpu dpu; do echo "-- $n"; ssh "${SSH_OPTS[@]}" "root@$n" 'ip -br addr show br1; bridge link | grep -E "br1"; ip -s link show pcie1 | head -6' 2>&1 || true; done
+  echo "----"
 }
 
 node_prereqs
