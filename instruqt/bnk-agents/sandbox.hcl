@@ -9,8 +9,8 @@ resource "vm" "dpu" {
   }
 
   resources {
-    cpu    = 8
-    memory = 32768
+    cpu    = 1
+    memory = 1024
   }
 
   network {
@@ -27,8 +27,8 @@ resource "vm" "gpu" {
   }
 
   resources {
-    cpu    = 32
-    memory = 65536
+    cpu    = 72
+    memory = 147456
   }
 
   network {
