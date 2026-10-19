@@ -1,2 +1,0 @@
-[nat.components]
-bnk_agents = bnk_agents.register

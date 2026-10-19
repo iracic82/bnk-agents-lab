@@ -25,3 +25,5 @@ specs/
 __pycache__/
 .venv/
 controller/dist/
+agents/build/
+*.egg-info/
