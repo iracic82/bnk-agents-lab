@@ -1,4 +1,5 @@
 slug: bnk-agents
+id: qqizbgdw3v3p
 title: 'AI agents run the AI factory: NVIDIA Run:ai, NeMo Agent Toolkit and BNK 2.4'
 teaser: A short description of the track.
 description: |-
@@ -10,10 +11,13 @@ tags: []
 owner: f5
 developers:
 - iracic@infoblox.com
+idle_timeout: 300
+timelimit: 1200
 lab_config:
   sidebar_enabled: true
   feedback_recap_enabled: true
   feedback_tab_enabled: false
   loadingMessages: true
   hideStopButton: false
+checksum: "16993944790521716688"
 enhanced_loading: false

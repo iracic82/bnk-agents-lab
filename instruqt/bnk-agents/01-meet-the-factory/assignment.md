@@ -1,33 +1,40 @@
 ---
 slug: meet-the-factory
+id: gbybmm680lib
 type: challenge
 title: Meet the AI factory
 teaser: Three tenants share simulated GPUs. Run:ai decides who gets GPUs, BNK decides
   which requests reach them.
 tabs:
-- title: Terminal
+- id: 7xfwlo9yleuj
+  title: Terminal
   type: terminal
   hostname: control
-- title: Topology
+- id: bb7iskcseoxb
+  title: Topology
   type: service
   hostname: control
   path: /topology.html
   port: 3002
-- title: Grafana
+- id: kone8zv16cid
+  title: Grafana
   type: service
   hostname: control
   path: /d/one-tenant-two-planes?orgId=1&kiosk&hideLogo&refresh=5s
   port: 3000
-- title: Run:ai UI
+- id: 6kzjcbvl4dan
+  title: Run:ai UI
   type: service
   hostname: control
   port: 3001
-- title: Lab code
+- id: p5j8uxvtyntq
+  title: Lab code
   type: code
   hostname: control
   path: /root/lab
 difficulty: basic
 timelimit: 1200
+enhanced_loading: null
 ---
 # Meet the AI factory
 
