@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+# Runs the probe below on the gpu VM over ssh (probe source: probes/gretap.sh).
+set -uo pipefail
+key=$(mktemp); trap 'rm -f "$key"' EXIT
+printf '%s\n' "$SSH_PRIVATE_KEY" > "$key"; chmod 600 "$key"
+command -v ssh >/dev/null || apk add -q openssh-client
+ssh -i "$key" -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=20 "root@$GPU_IP" bash -s <<'PROBE'
 # Builds the simulated PCIe link the full lab uses (platform/cluster/pcie-overlay.sh): a gretap tunnel
 # between gpu and dpu, bridged, then pings across it. Runs on gpu and builds the dpu end over ssh.
 set -uo pipefail
@@ -35,3 +41,4 @@ ssh $ssh_opts root@dpu "$(link $DPU $GPU 10.1.20.20/24)" || { echo "dpu end of t
 echo "dpu end up: $(ssh $ssh_opts root@dpu ip -br addr show br0)"
 
 ping -c 3 -W 2 10.1.20.20
+PROBE

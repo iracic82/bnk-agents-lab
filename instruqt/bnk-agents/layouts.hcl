@@ -6,15 +6,10 @@ resource "layout" "spike" {
   }
 
   column {
-    tab "gpu" {
-      title  = "gpu"
-      target = resource.terminal.gpu
+    tab "console" {
+      title  = "Console"
+      target = resource.terminal.console
       active = true
-    }
-
-    tab "dpu" {
-      title  = "dpu"
-      target = resource.terminal.dpu
     }
   }
 }

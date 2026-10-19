@@ -3,8 +3,7 @@ resource "task" "platform" {
   success_message = "Every platform property the full lab depends on holds."
 
   config {
-    target  = resource.vm.gpu
-    user    = "root"
+    target  = resource.container.console
     timeout = "10m"
   }
 
