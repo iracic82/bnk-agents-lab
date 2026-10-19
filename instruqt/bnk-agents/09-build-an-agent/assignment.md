@@ -1,18 +1,22 @@
 ---
 slug: build-an-agent
+id: uf8j32zag79q
 type: challenge
 title: Add an agent of your own
-teaser: Give the team a cost reporter that can only read token usage, and tighten the GPU ceiling.
-  Both are a few lines of YAML.
+teaser: Give the team a cost reporter that can only read token usage, and tighten
+  the GPU ceiling. Both are a few lines of YAML.
 tabs:
-- title: Terminal
+- id: cdwma0bpsbjx
+  title: Terminal
   type: terminal
   hostname: control
-- title: Terminal 2
+- id: yytumz2eqfo8
+  title: Terminal 2
   type: terminal
   hostname: control
 difficulty: intermediate
 timelimit: 2400
+enhanced_loading: null
 ---
 # Add an agent of your own
 

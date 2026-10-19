@@ -1,23 +1,28 @@
 ---
 slug: scale-down
+id: xa4trtfne6dk
 type: challenge
 title: Give the GPUs back
-teaser: The rush is over and tenant-b holds 2 GPUs it doesn't use. The agents propose returning
-  them to the pool.
+teaser: The rush is over and tenant-b holds 2 GPUs it doesn't use. The agents propose
+  returning them to the pool.
 tabs:
-- title: Terminal
+- id: s9mlkct8txlf
+  title: Terminal
   type: terminal
   hostname: control
-- title: Terminal 2
+- id: wfadsewonz5a
+  title: Terminal 2
   type: terminal
   hostname: control
-- title: Grafana
+- id: erwgwuzsvgch
+  title: Grafana
   type: service
   hostname: control
   path: /d/one-tenant-two-planes?orgId=1&kiosk&hideLogo&refresh=5s
   port: 3000
 difficulty: basic
 timelimit: 1800
+enhanced_loading: null
 ---
 # Give the GPUs back
 

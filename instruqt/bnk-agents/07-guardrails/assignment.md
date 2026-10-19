@@ -1,20 +1,24 @@
 ---
 slug: guardrails
+id: 5rltoaiqixtl
 type: challenge
 title: Guardrails that don't depend on the model
-teaser: Ask the agents for things they must not do. The refusals come from code, not from the
-  model behaving well.
+teaser: Ask the agents for things they must not do. The refusals come from code, not
+  from the model behaving well.
 tabs:
-- title: Terminal
+- id: pbztzdywr1ty
+  title: Terminal
   type: terminal
   hostname: control
-- title: Topology
+- id: llwgn1rw3h2n
+  title: Topology
   type: service
   hostname: control
   path: /topology.html
   port: 3002
 difficulty: intermediate
 timelimit: 1800
+enhanced_loading: null
 ---
 # Guardrails that don't depend on the model
 

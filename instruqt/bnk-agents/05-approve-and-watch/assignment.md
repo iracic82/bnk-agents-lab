@@ -1,32 +1,39 @@
 ---
 slug: approve-and-watch
+id: y0r2qyunyzdl
 type: challenge
 title: Approve, and watch BNK follow
-teaser: Say yes. Run:ai changes tenant-b's quota, the controller raises BNK's limit by itself,
-  and the 429s stop.
+teaser: Say yes. Run:ai changes tenant-b's quota, the controller raises BNK's limit
+  by itself, and the 429s stop.
 tabs:
-- title: Terminal
+- id: kkqzvtfe0jng
+  title: Terminal
   type: terminal
   hostname: control
-- title: Terminal 2
+- id: hudrohhbgc87
+  title: Terminal 2
   type: terminal
   hostname: control
-- title: Grafana
+- id: sjgsmccmmxmu
+  title: Grafana
   type: service
   hostname: control
   path: /d/one-tenant-two-planes?orgId=1&kiosk&hideLogo&refresh=5s
   port: 3000
-- title: Topology
+- id: j1x6ljpuzsci
+  title: Topology
   type: service
   hostname: control
   path: /topology.html
   port: 3002
-- title: Run:ai UI
+- id: ew9qfyq0vjr8
+  title: Run:ai UI
   type: service
   hostname: control
   port: 3001
 difficulty: basic
 timelimit: 1800
+enhanced_loading: null
 ---
 # Approve, and watch BNK follow
 

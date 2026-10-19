@@ -1,28 +1,34 @@
 ---
 slug: the-agent-team
+id: ehv4bclucudd
 type: challenge
 title: The agent team
-teaser: Three NeMo Agent Toolkit agents find the throttled tenant and propose a fix. You
-  say no, and nothing changes.
+teaser: Three NeMo Agent Toolkit agents find the throttled tenant and propose a fix.
+  You say no, and nothing changes.
 tabs:
-- title: Terminal
+- id: yflrynip4533
+  title: Terminal
   type: terminal
   hostname: control
-- title: Terminal 2
+- id: pkvvtzzkv1jw
+  title: Terminal 2
   type: terminal
   hostname: control
-- title: Grafana
+- id: kgrvghbk5l1q
+  title: Grafana
   type: service
   hostname: control
   path: /d/one-tenant-two-planes?orgId=1&kiosk&hideLogo&refresh=5s
   port: 3000
-- title: Topology
+- id: qsnkofhipc6x
+  title: Topology
   type: service
   hostname: control
   path: /topology.html
   port: 3002
 difficulty: basic
 timelimit: 1800
+enhanced_loading: null
 ---
 # The agent team
 

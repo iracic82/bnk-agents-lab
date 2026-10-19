@@ -1,25 +1,30 @@
 ---
 slug: debrief
+id: qactyxwenyzb
 type: challenge
 title: What you built, and what's real
-teaser: A recap of the loop, what in this lab is real and what is simulated, and where it goes
-  next.
+teaser: A recap of the loop, what in this lab is real and what is simulated, and where
+  it goes next.
 tabs:
-- title: Terminal
+- id: pn5dr1ys2eys
+  title: Terminal
   type: terminal
   hostname: control
-- title: Grafana
+- id: k5igvq9img2h
+  title: Grafana
   type: service
   hostname: control
   path: /d/one-tenant-two-planes?orgId=1&kiosk&hideLogo&refresh=5s
   port: 3000
-- title: Topology
+- id: om8oiefnm2xv
+  title: Topology
   type: service
   hostname: control
   path: /topology.html
   port: 3002
 difficulty: basic
 timelimit: 900
+enhanced_loading: null
 ---
 # What you built, and what's real
 

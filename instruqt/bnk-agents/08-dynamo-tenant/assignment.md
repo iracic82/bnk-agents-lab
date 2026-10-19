@@ -1,25 +1,30 @@
 ---
 slug: dynamo-tenant
+id: yld0k1vyrphq
 type: challenge
 title: A Dynamo tenant, to BNK and the agents alike
-teaser: NVIDIA Dynamo serves one tenant. BNK picks its worker from Dynamo's own KV-cache events,
-  and the agents watch it like any other tenant.
+teaser: NVIDIA Dynamo serves one tenant. BNK picks its worker from Dynamo's own KV-cache
+  events, and the agents watch it like any other tenant.
 tabs:
-- title: Terminal
+- id: 8pbgpa1zlvxu
+  title: Terminal
   type: terminal
   hostname: control
-- title: Grafana
+- id: yhusfeydmxcx
+  title: Grafana
   type: service
   hostname: control
   path: /d/one-tenant-two-planes?orgId=1&kiosk&hideLogo&refresh=5s
   port: 3000
-- title: Topology
+- id: 9amsqm2fcp4i
+  title: Topology
   type: service
   hostname: control
   path: /topology.html
   port: 3002
 difficulty: intermediate
 timelimit: 1800
+enhanced_loading: null
 ---
 # A Dynamo tenant, to BNK and the agents alike
 

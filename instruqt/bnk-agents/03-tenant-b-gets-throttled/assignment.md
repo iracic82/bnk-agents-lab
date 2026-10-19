@@ -1,28 +1,34 @@
 ---
 slug: tenant-b-gets-throttled
+id: djdjvqywq3wr
 type: challenge
 title: tenant-b gets throttled
-teaser: tenant-b sends more than its GPU share allows. BNK refuses the extra at the edge,
-  before it ever reaches a GPU.
+teaser: tenant-b sends more than its GPU share allows. BNK refuses the extra at the
+  edge, before it ever reaches a GPU.
 tabs:
-- title: Terminal
+- id: gshgrhjc1for
+  title: Terminal
   type: terminal
   hostname: control
-- title: Terminal 2
+- id: ypsy4lfnfxim
+  title: Terminal 2
   type: terminal
   hostname: control
-- title: Grafana
+- id: 8sofj0m4rvpt
+  title: Grafana
   type: service
   hostname: control
   path: /d/one-tenant-two-planes?orgId=1&kiosk&hideLogo&refresh=5s
   port: 3000
-- title: Topology
+- id: t2pyfimalbkn
+  title: Topology
   type: service
   hostname: control
   path: /topology.html
   port: 3002
 difficulty: basic
 timelimit: 1200
+enhanced_loading: null
 ---
 # tenant-b gets throttled
 

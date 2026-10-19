@@ -1,29 +1,35 @@
 ---
 slug: the-tools-agents-get
+id: reznywknoan4
 type: challenge
 title: The tools an agent gets
-teaser: Call both MCP servers by hand. One reads BNK, one changes Run:ai, and the change
-  never happens without approval.
+teaser: Call both MCP servers by hand. One reads BNK, one changes Run:ai, and the
+  change never happens without approval.
 tabs:
-- title: Terminal
+- id: aciv93h0xkrk
+  title: Terminal
   type: terminal
   hostname: control
-- title: Topology
+- id: a5i9db69nhxb
+  title: Topology
   type: service
   hostname: control
   path: /topology.html
   port: 3002
-- title: Grafana
+- id: yo7fotvmn9ai
+  title: Grafana
   type: service
   hostname: control
   path: /d/one-tenant-two-planes?orgId=1&kiosk&hideLogo&refresh=5s
   port: 3000
-- title: Run:ai UI
+- id: irhvjbhqw6oa
+  title: Run:ai UI
   type: service
   hostname: control
   port: 3001
 difficulty: basic
 timelimit: 1200
+enhanced_loading: null
 ---
 # The tools an agent gets
 
