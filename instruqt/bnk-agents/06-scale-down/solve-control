@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Stop the overload, start the quiet load, and make the same quota change the approval does.
+export KUBECONFIG=/etc/kubernetes/admin.conf
+pkill -f 'loadgen.py.*--profile overload.*--label tenant-b' || true
+pgrep -f 'loadgen.py.*--profile steady.*--label tenant-b' >/dev/null || \
+  nohup labctl load steady --tenant tenant-b --rps 4 --seconds 900 >/tmp/tenant-b-steady.log 2>&1 &
+set -e
+labctl mcp runai call manage_org_unit \
+  '{"action":"update","orgType":"project","name":"tenant-b","spec":{"quota":[{"nodePoolName":"default","gpuDeserved":0.5}]},"confirm":true}' >/dev/null
+for _ in $(seq 1 36); do
+  rl=$(labctl tenant show tenant-b --json 2>/dev/null | jq -r '.bnk.rateLimitRps')
+  thr=$(labctl mcp bnk call get_tenant_rejections '{"project":"tenant-b"}' 2>/dev/null | jq -r '.throttled')
+  [ "$rl" = 10 ] && [ "$thr" = false ] && exit 0
+  sleep 5
+done
+echo "tenant-b did not settle at 10 req/s without 429s within 3 minutes" >&2; exit 1

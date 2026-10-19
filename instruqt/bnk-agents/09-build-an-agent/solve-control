@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Write the finished team file.
+/opt/bnk-agents/bin/python - <<'PY'
+import yaml
+c = yaml.safe_load(open("/root/lab/agents/configs/factory-ops.yml"))
+c["function_groups"]["bnk_usage"] = {"_type": "mcp_client", "server": dict(c["function_groups"]["bnk"]["server"]),
+                                     "include": ["get_tenant_usage"]}
+c["functions"]["cost_reporter"] = {"_type": "react_agent", "llm_name": "nemotron", "tool_names": ["bnk_usage"],
+    "max_iterations": 6, "description": "Reports how many tokens a tenant used, from BNK's meter. Read only."}
+c["workflow"]["tool_names"] = ["monitor", "operator", "cost_reporter"]
+c["functions"]["approved_quota_change"]["max_gpu"] = 2
+yaml.safe_dump(c, open("/root/my-team.yml", "w"), sort_keys=False)
+PY

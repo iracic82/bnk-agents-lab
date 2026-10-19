@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Every tenant still has a BNK front door.
+export KUBECONFIG=/etc/kubernetes/admin.conf
+for t in tenant-a tenant-b dynamo; do
+  [ -n "$(kubectl get gateway -n f5-bnk "$t" -o jsonpath='{.status.addresses[0].value}' 2>/dev/null)" ] \
+    || { fail-message "$t has no BNK front door."; exit 1; }
+done
+exit 0

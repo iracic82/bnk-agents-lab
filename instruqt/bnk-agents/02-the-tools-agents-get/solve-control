@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Nothing to do: the learner only calls read-only tools and a dry run.
+exit 0

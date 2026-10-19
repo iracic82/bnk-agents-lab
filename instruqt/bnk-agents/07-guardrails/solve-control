@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Every attempt is refused or declined; nothing to do.
+exit 0

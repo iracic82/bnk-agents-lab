@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+export KUBECONFIG=/etc/kubernetes/admin.conf
+NS=$(kubectl get projects.kai.resources dynamo -o jsonpath='{.status.namespace}' 2>/dev/null)
+[ -n "$NS" ] || { fail-message "There is no Run:ai project 'dynamo' with a namespace."; exit 1; }
+[ "$(kubectl -n "$NS" get f5-epps model-pool-epp -o jsonpath='{.spec.engine}' 2>/dev/null)" = dynamo ] \
+  || { fail-message "BNK's Endpoint Picker for dynamo is not in Dynamo mode."; exit 1; }
+VIP=$(kubectl get gateway -n f5-bnk dynamo -o jsonpath='{.status.addresses[0].value}')
+MODEL=$(curl -s -m 10 "http://$VIP:8000/v1/models" | jq -r '.data[0].id // empty')
+curl -s -m 20 "http://$VIP:8000/v1/chat/completions" -H 'Content-Type: application/json' \
+  -d "{\"model\":\"$MODEL\",\"max_tokens\":4,\"nvext\":{\"extra_fields\":[\"worker_id\"]},\"messages\":[{\"role\":\"user\",\"content\":\"check\"}]}" \
+  | grep -q decode_worker_id || { fail-message "A request through BNK to the dynamo tenant was not served by a named Dynamo worker."; exit 1; }
+labctl mcp bnk call get_tenant_rejections '{"project":"dynamo"}' 2>/dev/null | jq -e '.rateLimitRps == 20' >/dev/null \
+  || { fail-message "bnk-tenancy-mcp doesn't report dynamo's 20 req/s limit."; exit 1; }
+exit 0

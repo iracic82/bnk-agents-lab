@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Every attempt was refused or declined: quotas are exactly as setup and challenge 6 left them.
+export KUBECONFIG=/etc/kubernetes/admin.conf
+for pair in tenant-a=2 tenant-b=0.5 dynamo=1; do
+  t=${pair%=*}; want=${pair#*=}
+  g=$(kubectl get projects.kai.resources "$t" -o jsonpath='{.spec.queues[*].resources.gpu.deserved}' 2>/dev/null)
+  [ "$g" = "$want" ] || { fail-message "$t's quota is ${g:-unknown}, expected $want. One of the attempts got through; at the tenant-b prompt you should type no."; exit 1; }
+done
+exit 0

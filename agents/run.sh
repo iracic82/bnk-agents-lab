@@ -2,6 +2,7 @@
 # Runs the agent team (NeMo Agent Toolkit) against the live factory, on the control node.
 #   run.sh "<question>"            ask the team; a person approves any Run:ai change
 #   run.sh                         the default question: is any tenant being refused at the BNK edge?
+#   AGENTS_CONFIG=<file> run.sh    run a different team definition (challenge 9 edits a copy)
 # Every run gets a fresh Run:ai token (it's short-lived) and the bnk-tenancy-mcp token from its Secret.
 set -euo pipefail
 LAB_ROOT="${LAB_ROOT:-/root/lab}"
@@ -41,4 +42,4 @@ export RUNAI_MCP_URL="http://$(svc runai-mcp runai-mcp-server):8080/mcp"
 export BNK_MCP_URL="http://$(svc bnk-runai-tenancy bnk-tenancy-mcp):8090/mcp"
 
 question="${1:-Is any tenant being refused at the BNK edge? If so, propose the GPU quota that would stop it.}"
-exec "$VENV/bin/nat" run --config_file "$HERE/configs/factory-ops.yml" --input "$question"
+exec "$VENV/bin/nat" run --config_file "${AGENTS_CONFIG:-$HERE/configs/factory-ops.yml}" --input "$question"

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+export KUBECONFIG=/etc/kubernetes/admin.conf
+g=$(kubectl get projects.kai.resources tenant-b -o jsonpath='{.spec.queues[*].resources.gpu.deserved}' 2>/dev/null)
+[ "$g" = 0.5 ] || { fail-message "tenant-b's Run:ai quota is ${g:-unknown}, not 0.5. Run the labctl agents question and type yes."; exit 1; }
+rl=$(labctl tenant show tenant-b --json 2>/dev/null | jq -r '.bnk.rateLimitRps')
+[ "$rl" = 10 ] || { fail-message "Run:ai has 0.5 GPU but BNK's limit is still ${rl}. Give the controller a few seconds."; exit 1; }
+labctl mcp bnk call get_tenant_rejections '{"project":"tenant-b"}' 2>/dev/null | jq -e '.throttled == false' >/dev/null \
+  || { fail-message "tenant-b is being refused. Is the overload still running? Stop it in Terminal 2 and start the steady load."; exit 1; }
+exit 0

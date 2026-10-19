@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# The learner's team file has the cost reporter (one-tool MCP group) and the tighter ceiling, and still loads.
+export KUBECONFIG=/etc/kubernetes/admin.conf
+f=/root/my-team.yml
+[ -r "$f" ] || { fail-message "There's no /root/my-team.yml. Copy the team file first."; exit 1; }
+py=/opt/bnk-agents/bin/python
+"$py" - "$f" <<'PY' || exit 1
+import sys, yaml, subprocess
+c = yaml.safe_load(open(sys.argv[1]))
+def fail(m):
+    subprocess.run(["fail-message", m]); sys.exit(1)
+g = c.get("function_groups", {}).get("bnk_usage")
+if not g or g.get("include") != ["get_tenant_usage"]:
+    fail("function_groups.bnk_usage should be an mcp_client with include: [get_tenant_usage].")
+cr = c.get("functions", {}).get("cost_reporter")
+if not cr or cr.get("tool_names") != ["bnk_usage"]:
+    fail("functions.cost_reporter should be a react_agent with tool_names: [bnk_usage].")
+if "cost_reporter" not in c.get("workflow", {}).get("tool_names", []):
+    fail("workflow.tool_names should include cost_reporter.")
+if c.get("functions", {}).get("approved_quota_change", {}).get("max_gpu") != 2:
+    fail("functions.approved_quota_change.max_gpu should be 2.")
+PY
+g=$(kubectl get projects.kai.resources tenant-b -o jsonpath='{.spec.queues[*].resources.gpu.deserved}')
+[ "$g" = 0.5 ] || { fail-message "tenant-b's quota is $g; at any prompt in this challenge you should type no."; exit 1; }
+exit 0

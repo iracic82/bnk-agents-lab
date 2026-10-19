@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# What the approval does, without a person at the prompt: the same Run:ai MCP call with confirm=true.
+export KUBECONFIG=/etc/kubernetes/admin.conf
+set -e
+labctl mcp runai call manage_org_unit \
+  '{"action":"update","orgType":"project","name":"tenant-b","spec":{"quota":[{"nodePoolName":"default","gpuDeserved":2}]},"confirm":true}' >/dev/null
+for _ in $(seq 1 36); do
+  [ "$(labctl tenant show tenant-b --json 2>/dev/null | jq -r '.bnk.rateLimitRps')" = 40 ] && exit 0
+  sleep 5
+done
+echo "BNK's limit did not reach 40 within 3 minutes" >&2; exit 1

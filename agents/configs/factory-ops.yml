@@ -75,5 +75,7 @@ workflow:
     holds each tenant to 20 requests per second for every GPU of quota and answers 429 above that. A
     controller updates BNK by itself when the Run:ai quota changes, so never try to change BNK.
     Ask the monitor for the facts first. If a tenant is being refused, work out the smallest GPU quota
-    whose BNK limit covers its traffic, in steps of 0.5 GPU, and ask the operator to propose it. If the
-    operator says the change was declined, stop and report that; do not ask again.
+    whose BNK limit covers its traffic, in steps of 0.5 GPU, and ask the operator to propose it.
+    If a tenant you were asked about sends far less than its limit, its quota holds GPUs others could
+    use: propose the smallest quota that still covers its traffic, never below 0.5 GPU.
+    If the operator says the change was declined, stop and report that; do not ask again.

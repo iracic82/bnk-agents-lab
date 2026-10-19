@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+export KUBECONFIG=/etc/kubernetes/admin.conf
+r=$(labctl mcp bnk call get_tenant_rejections '{"project":"tenant-b"}' 2>/dev/null)
+echo "$r" | jq -e '.throttled == true' >/dev/null || {
+  fail-message "BNK isn't refusing any of tenant-b's requests yet. Start the load in Terminal 2 (labctl load overload --tenant tenant-b --rps 35 --seconds 900) and wait a minute."; exit 1; }
+exit 0

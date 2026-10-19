@@ -60,6 +60,7 @@ labctl - BNK 2.4 x Run:ai lab CLI
   labctl dash [panel]
   labctl verify <challenge>          e.g. 02 or 02-tenant-defined-once
   labctl agents ["<question>"]       run the agent team; you approve any Run:ai change
+  labctl mcp <bnk|runai> tools|discover|call <tool> [<json-args>]   one MCP 2026-07-28 request by hand
 
 --priority takes a number (mapped to the nearest Run:ai rank at or below it: 255 Highest, 240,
 210, 180, 150 Medium, 100 MediumLow, 50 Low, 20, 1 Lowest) or a rank name such as High.
@@ -576,6 +577,48 @@ cmd_dash() {
   [ -n "$ip" ] && echo "  http://$ip:$GRAFANA_PORT/d/$DASH_UID/$DASH_UID$q"
 }
 
+# ------------------------------------------------------------------------------------------- mcp
+# One sessionless MCP 2026-07-28 request, by hand: no initialize, no session id. Shows exactly what an
+# agent sends. Servers: bnk (bnk-tenancy-mcp, read-only) and runai (NVIDIA's Run:ai MCP, stateless build).
+cmd_mcp() {
+  local server="${1:-}" method="${2:-}" tool="" args="{}"
+  case "$method" in
+    tools) method=tools/list ;;
+    call) method=tools/call; tool="${3:-}"; args="${4:-}"; [ -n "$args" ] || args="{}"
+          [ -n "$tool" ] || die 'usage: labctl mcp <bnk|runai> call <tool> [<json-args>]' ;;
+    discover) method=server/discover ;;
+    *) die 'usage: labctl mcp <bnk|runai> tools|discover|call <tool> [<json-args>]' ;;
+  esac
+  jq -e . >/dev/null 2>&1 <<<"$args" || die "arguments must be JSON, e.g. '{\"project\":\"tenant-b\"}'"
+  local url token
+  case "$server" in
+    bnk)   url="http://$(k -n bnk-runai-tenancy get svc bnk-tenancy-mcp -o jsonpath='{.spec.clusterIP}'):${BNK_MCP_PORT:-8090}/mcp"
+           token="$(k -n bnk-runai-tenancy get secret bnk-tenancy-mcp-token -o jsonpath='{.data.token}' | base64 -d)" ;;
+    runai) url="http://$(k -n runai-mcp get svc runai-mcp-server -o jsonpath='{.spec.clusterIP}'):${RUNAI_MCP_PORT:-8080}/mcp"
+           api_token; token="$TOKEN" ;;
+    *) die 'usage: labctl mcp <bnk|runai> ...' ;;
+  esac
+  local meta params body hdr
+  meta='{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{},"io.modelcontextprotocol/clientInfo":{"name":"labctl","version":"1"}}'
+  if [ "$method" = tools/call ]; then
+    params="$(jq -nc --arg t "$tool" --argjson a "$args" --argjson m "$meta" '{name:$t, arguments:$a, _meta:$m}')"
+  else
+    params="$(jq -nc --argjson m "$meta" '{_meta:$m}')"
+  fi
+  body="$(jq -nc --arg m "$method" --argjson p "$params" '{jsonrpc:"2.0", id:1, method:$m, params:$p}')"
+  hdr="$(mktemp)"
+  local out; out="$(curl -s -m 30 -D "$hdr" "$url" -H "Authorization: Bearer $token" -H 'Content-Type: application/json' \
+    -H 'Accept: application/json, text/event-stream' -H 'MCP-Protocol-Version: 2026-07-28' -H "Mcp-Method: $method" \
+    ${tool:+-H "Mcp-Name: $tool"} -d "$body")"
+  echo >&2 "# POST $url   method=$method${tool:+ tool=$tool}   session id: $(grep -i '^mcp-session-id:' "$hdr" | cut -d' ' -f2 | tr -d '\r' | grep . || echo none)"
+  rm -f "$hdr"
+  # Server-sent-event framing, if any, is stripped so the JSON-RPC answer prints the same either way.
+  out="$(sed -n 's/^data: //p' <<<"$out" | grep . || echo "$out")"
+  if [ "$method" = tools/list ]; then jq -r '.result.tools[]? | "\(.name)\t\(.annotations.readOnlyHint // false | if . then "read-only" else "writes" end)"' <<<"$out" | column -t -s$'\t'
+  elif [ "$method" = tools/call ]; then jq '.error // (if .result.isError then {isError:true, text:.result.content[0].text} else (.result.structuredContent // (.result.content[0].text | fromjson? // .)) end)' <<<"$out"
+  else jq '.result // .error' <<<"$out"; fi
+}
+
 cmd_verify() {
   local c="${1:-}" dir
   [ -n "$c" ] || die "usage: labctl verify <challenge>  (e.g. 02)"
@@ -609,6 +652,7 @@ main() {
     dash) cmd_dash "$@" ;;
     verify) cmd_verify "$@" ;;
     agents) exec bash "$LAB_ROOT/agents/run.sh" "$@" ;;
+    mcp) cmd_mcp "$@" ;;
     routing) die "routing rr|epp is not available in this release: the tenancy controller owns each tenant's InferencePool and always wires the Endpoint Picker" ;;
     -h|--help|help|"") usage ;;
     *) usage >&2; exit 2 ;;

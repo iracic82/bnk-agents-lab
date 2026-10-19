@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Start the overload in the background (it outlives this script), then wait until BNK reports throttling.
+export KUBECONFIG=/etc/kubernetes/admin.conf
+pgrep -f 'loadgen.py.*--label tenant-b' >/dev/null || \
+  nohup labctl load overload --tenant tenant-b --rps 35 --seconds 900 >/tmp/tenant-b-load.log 2>&1 &
+for _ in $(seq 1 30); do
+  labctl mcp bnk call get_tenant_rejections '{"project":"tenant-b"}' 2>/dev/null | jq -e '.throttled == true' >/dev/null && exit 0
+  sleep 5
+done
+echo "tenant-b was not throttled after 150s" >&2; exit 1

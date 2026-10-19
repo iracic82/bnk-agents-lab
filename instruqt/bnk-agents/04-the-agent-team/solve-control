@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# The decline leaves everything as it was; nothing to do.
+exit 0
