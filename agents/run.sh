@@ -42,4 +42,10 @@ export RUNAI_MCP_URL="http://$(svc runai-mcp runai-mcp-server):8080/mcp"
 export BNK_MCP_URL="http://$(svc bnk-runai-tenancy bnk-tenancy-mcp):8090/mcp"
 
 question="${1:-Is any tenant being refused at the BNK edge? If so, propose the GPU quota that would stop it.}"
-exec "$VENV/bin/nat" run --config_file "${AGENTS_CONFIG:-$HERE/configs/factory-ops.yml}" --input "$question"
+# Record the run, typed answers included, for the Topology tab's agent trace. script(1) keeps the
+# real terminal, so the approval prompt still reads from the keyboard.
+log_dir=/var/log/bnk-agents
+mkdir -p "$log_dir"
+printf '# question: %s\n' "$question" > "$log_dir/last-run.log"
+cmd=$(printf '%q ' "$VENV/bin/nat" run --config_file "${AGENTS_CONFIG:-$HERE/configs/factory-ops.yml}" --input "$question")
+exec script -q -a -e -c "$cmd" "$log_dir/last-run.log"

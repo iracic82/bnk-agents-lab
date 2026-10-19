@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Serves the interactive lab topology (topology.html) on :3002 for the Instruqt "Topology" tab.
+# Serves the interactive lab topology on :3002 for the Instruqt "Topology" tab, with its live
+# state and agent-trace feeds (server.py, read-only).
 set -euo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cat > /etc/systemd/system/lab-topology.service <<UNIT
@@ -7,7 +8,8 @@ cat > /etc/systemd/system/lab-topology.service <<UNIT
 Description=Lab topology page
 After=network-online.target
 [Service]
-ExecStart=/usr/bin/python3 -m http.server 3002 --bind 0.0.0.0 --directory ${DIR}
+Environment=KUBECONFIG=/etc/kubernetes/admin.conf
+ExecStart=/usr/bin/python3 ${DIR}/server.py
 Restart=always
 [Install]
 WantedBy=multi-user.target

@@ -77,6 +77,15 @@
   @media (max-width: 1000px) { .grid2 { grid-template-columns: 1fr; } }
   section.card2 { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px; }
   section.card2 h2 { font-size: 15px; font-weight: 600; margin: 0 0 12px; }
+  .ts { font-weight: 400; font-size: 12px; color: var(--mild); margin-left: 6px; }
+  .note, .q { font-size: 12px; color: var(--mild); margin: 10px 0 0; }
+  .q { margin: 0 0 8px; font-style: italic; }
+  td.bad { color: var(--bnk); font-weight: 600; } td.ok { color: var(--tenant); }
+  ol.trace { margin: 0; padding-left: 20px; font-size: 13px; }
+  ol.trace li { margin: 4px 0; } ol.trace code { font-size: 12px; }
+  ol.trace .k { display: inline-block; min-width: 72px; font-size: 11px; text-transform: uppercase; color: var(--mild); }
+  ol.trace .ask { color: var(--limit); } ol.trace .yes { color: var(--tenant); } ol.trace .no { color: var(--bnk); }
+
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th, td { text-align: left; padding: 9px 10px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
   tr:last-child td { border-bottom: 0; }
@@ -149,10 +158,10 @@
       <span class="h">Delete the project, BNK forgets it</span>
       <span class="p">Every BNK object for the project is removed. Its address is held back before reuse.</span>
       <span class="proof"><i>proof</i>BNK objects gone · Run:ai never written</span></button>
-    <button class="vcard" data-go="agent" style="--vc:var(--ai)"><span class="k">AI agent over MCP <b>live</b></span>
-      <span class="h">An agent asks, BNK serves</span>
-      <span class="p">Any LLM drives NVIDIA's Run:ai MCP server and bnk-tenancy-mcp. You approve the change, BNK builds the rest.</span>
-      <span class="proof"><i>proof</i>dry run → approve → VIP Programmed, 20 req/s</span></button>
+    <button class="vcard" data-go="agent" style="--vc:var(--ai)"><span class="k">Agent loop <b>live</b></span>
+      <span class="h">Agents propose, you approve</span>
+      <span class="p">A NeMo Agent Toolkit team reads BNK, proposes a Run:ai quota and waits for your yes. BNK follows Run:ai.</span>
+      <span class="proof"><i>proof</i>429s → dry run → yes → 40 req/s</span></button>
   </div>
   <div class="bar">
     <div class="seg" role="group" aria-label="Choose a flow">
@@ -162,7 +171,7 @@
       <button type="button" data-flow="hijack"><span class="dot" style="background:var(--bnk)"></span>Cross-tenant route</button>
       <button type="button" data-flow="dynamo"><span class="dot" style="background:var(--dyn)"></span>Dynamo</button>
       <button type="button" data-flow="meter"><span class="dot" style="background:var(--meter)"></span>Token metering</button>
-      <button type="button" data-flow="agent"><span class="dot" style="background:var(--ai)"></span>AI agent (MCP)</button>
+      <button type="button" data-flow="agent"><span class="dot" style="background:var(--ai)"></span>Agent loop</button>
       <button type="button" data-flow="delete"><span class="dot" style="background:var(--glue)"></span>Delete a tenant</button>
     </div>
     <div class="ctl" role="group" aria-label="Playback">
@@ -191,8 +200,8 @@
   <text class="t" x="36" y="94">Run:ai admin</text>
   <text class="s" x="36" y="112">UI · API · labctl</text>
   <rect class="card" id="n-ai" x="20" y="194" width="160" height="56" rx="8" style="stroke:var(--ai)"/>
-  <text class="t" x="36" y="218">AI agent</text>
-  <text class="s" x="36" y="236">any LLM · Nemotron</text>
+  <text class="t" x="36" y="218">Agent team</text>
+  <text class="s" x="36" y="236">NeMo Agent Toolkit</text>
   <rect class="card" id="n-client" x="20" y="318" width="160" height="56" rx="8"/>
   <text class="t" x="36" y="342">Client app</text>
   <text class="s" x="36" y="360">any OpenAI SDK</text>
@@ -206,7 +215,7 @@
   <text class="mono" x="246" y="146">https://runai.lab</text>
   <rect class="card" id="n-mcp" x="232" y="160" width="268" height="40" rx="6" style="stroke:var(--ai)"/>
   <text class="t" x="246" y="178">MCP servers</text>
-  <text class="s" x="246" y="193">Run:ai MCP :8080 · bnk-tenancy-mcp :8090</text>
+  <text class="s" x="246" y="193">Run:ai MCP :8080 · BNK MCP :8090 · stateless</text>
   <rect class="card" id="n-agent" x="232" y="206" width="268" height="44" rx="6"/>
   <text class="t" x="246" y="225">Run:ai cluster services</text>
   <text class="s" x="246" y="241">agent · project controller · writes Project</text>
@@ -326,6 +335,22 @@
 </div>
 
 <div class="grid2">
+<section class="card2" id="live">
+  <h2>Live now <span class="ts" id="live-at"></span></h2>
+  <table>
+    <thead><tr><th>Tenant</th><th>Run:ai GPU quota</th><th>BNK limit</th><th>Served</th><th>Refused (429)</th></tr></thead>
+    <tbody id="live-rows"><tr><td colspan="5">Loading…</td></tr></tbody>
+  </table>
+  <p class="note">Quota from each tenant's Run:ai project, limit from its BNK iRule, rates over the last minute from Prometheus. Refreshes every 5 seconds.</p>
+</section>
+<section class="card2" id="trace">
+  <h2>Last agent run <span class="ts" id="trace-at"></span></h2>
+  <p class="q" id="trace-q"></p>
+  <ol class="trace" id="trace-steps"><li>Loading…</li></ol>
+</section>
+</div>
+
+<div class="grid2">
 <section class="card2">
   <h2>Addresses and names</h2>
   <table>
@@ -347,7 +372,7 @@
       <tr><td>BNK 2.4: TMM, Gateway API, InferencePool, F5 Endpoint Picker, iRules, NetPolicy</td><td>The DPU is a VM with GRE tunnels to the GPU node. In production TMM runs on BlueField-3.</td></tr>
       <tr><td>Open-source NVIDIA Run:ai: control plane, UI, API, scheduler, projects and quotas</td><td>The GPUs come from NVIDIA's fake-gpu-operator: real to the scheduler, no silicon.</td></tr>
       <tr><td>NVIDIA Dynamo operator, KV-cache events over NATS, BNK's Endpoint Picker in Dynamo mode</td><td>Dynamo's Mocker engine and a vLLM twin stand in for real inference. Both use the real tokenizer, without model weights.</td></tr>
-      <tr><td>Both MCP servers and the LLM the agent talks to</td><td>Nothing stands in.</td></tr>
+      <tr><td>NeMo Agent Toolkit, Nemotron on build.nvidia.com, both MCP servers</td><td>Nothing stands in. Run:ai's MCP server has one change, so it runs without sessions.</td></tr>
       <tr><td>Every rate limit, 429, route decision and token count</td><td>Model answers are filler text from the simulators.</td></tr>
     </tbody>
   </table>
@@ -392,24 +417,18 @@ const FLOWS = {
     { d: "M1049,358 V346", lit: ["n-dinfra", "n-dwork"], s: "Each Dynamo worker publishes KV-cache events over NATS. Only Dynamo tenant namespaces may connect." },
     { d: "M920,390 H880 V394 H844", dash: true, lit: ["n-dfront"], s: "BNK's picker in Dynamo mode (F5EPP <code>engine: dynamo</code>) subscribes to those events and learns which worker holds which prompt." },
     { d: "M779,356 V368", lit: ["n-dfront"], chips: ["c-pick"], s: "TMM asks that picker which worker should take the request. It names the worker in the request body." },
-    { d: "M844,250 H900 V315 H920", lit: ["n-dwork"], s: "The chosen worker's direct-mode frontend serves exactly the worker BNK named. Live: prompt A 6 of 6 to one worker, prompt B 6 of 6 to the other." },
+    { d: "M844,250 H900 V315 H920", lit: ["n-dwork"], s: "The chosen worker's direct-mode frontend serves the worker BNK named, and its <code>decode_worker_id</code> comes back in the response." },
     { d: "M920,300 H880 V290 H844", lit: ["n-tmm"], back: true, chips: ["c-tag", "c-meter"], s: "The answer returns through TMM with <code>X-BNK-Tenant: dynamo</code>." },
   ]},
-  agent: { label: "Control plane", color: "--ai", t: "AI agent over MCP", w: "An LLM agent asks for a tenant in plain English. It acts only through MCP tools, and a human approves every change.", hops: [
-    { d: "M180,222 H200 V180 H232", dash: true, lit: ["n-ai", "n-mcp"], s: "The agent connects to two MCP servers and hands their tools to its LLM, here NVIDIA Nemotron. Any OpenAI-compatible model works." },
-    { d: "M366,160 V154", dash: true, lit: ["n-mcp", "n-cp"], s: "Through NVIDIA's Run:ai MCP server it looks up the node pool and department, then asks for <code>agent-demo</code> with 1 GPU as a <b>dry run</b>. Nothing changes." },
-    { d: "M180,222 H200 V180 H232", dash: true, lit: ["n-ai"], s: "The agent shows the change and waits. Only after a human types <b>y</b> does it call the same tool for real." },
-    { d: "M366,200 V206", dash: true, lit: ["n-agent"], s: "Run:ai creates the project and its namespace, exactly as if an admin had used the UI." },
-    { d: "M366,250 V304", dash: true, lit: ["n-ctrl"], s: "The tenancy controller builds agent-demo's BNK tenant. The agent never touches BNK." },
-    { d: "M500,334 H540 V118 H576", dash: true, lit: ["n-cne", "n-tmm"], chips: ["c-route", "c-limit"], s: "BNK programs the Gateway on a new VIP with a 20 req/s limit from the one GPU." },
-    { d: "M232,180 H200 V222 H180", dash: true, back: true, lit: ["n-mcp", "n-ai"], s: "The agent asks <code>bnk-tenancy-mcp</code> for the front door and answers: VIP, rate limit, tokens used. Read-only, no session." },
-  ]},
-  meter: { label: "Data path", color: "--meter", t: "Token metering", w: "How each project's token count leaves TMM and reaches Grafana and Run:ai.", hops: [
-    { d: "M710,272 V272", lit: ["n-tmm"], chips: ["c-meter"], s: "On every response the iRule reads <code>usage</code> from the model's answer and parks one line in a TMM table." },
-    { d: "M500,409 H540 V300 H576", dash: true, lit: ["n-meter", "n-tmm"], s: "Every 5 seconds the meter calls each tenant's <code>/bnk/flush</code> with a shared token." },
-    { d: "M576,320 H540 V420 H500", lit: ["n-meter"], s: "TMM sends the parked lines over TCP from 10.1.10.201 to 10.1.10.11:5514. The meter refuses any other sender." },
-    { d: "M366,440 V452", lit: ["n-graf"], s: "Prometheus scrapes <code>bnk_tokens_total{project, department, model}</code>; Grafana shows tokens and tokens per GPU per project." },
-    { d: "M366,504 V516", lit: ["n-ledger"], s: "Every 30 seconds totals go to the usage ledger, rolled up per department, with a <code>TokensMetered</code> event on the Run:ai project." },
+  agent: { label: "Control plane", color: "--ai", t: "The agent loop", w: "A tenant is throttled. The agents find it and propose more GPU quota. You approve, and BNK raises the limit by itself.", hops: [
+    { d: "M180,346 H196 V632 H546 V230 H576", lit: ["n-client", "n-tmm"], chips: ["c-limit"], s: "tenant-b sends 35 req/s. Its quota is 0.5 GPU, so its iRule lets 10 through and BNK answers the rest with <b>429</b>." },
+    { d: "M180,222 H200 V180 H232", dash: true, lit: ["n-ai", "n-mcp"], s: "You ask the team. The <b>monitor</b> calls <code>get_tenant_rejections</code> on the BNK MCP server: tenant-b is refusing about 25 req/s." },
+    { d: "M366,160 V154", dash: true, lit: ["n-mcp", "n-cp"], s: "The <b>lead</b> works out 2 GPUs (40 req/s). The <b>operator</b> asks Run:ai's MCP server for a <b>dry run</b>. Nothing changes yet." },
+    { d: "M232,180 H200 V222 H180", dash: true, back: true, lit: ["n-ai"], s: "<code>approved_quota_change</code> shows you the change and waits. Only an exact <b>yes</b> lets it call again with <code>confirm=true</code>." },
+    { d: "M366,200 V206", dash: true, lit: ["n-cp", "n-agent"], s: "Run:ai applies the new quota and updates tenant-b's <code>kai.resources</code> Project." },
+    { d: "M366,250 V304", dash: true, lit: ["n-ctrl"], s: "The tenancy controller sees the change. It never heard from the agents." },
+    { d: "M500,334 H540 V118 H576", dash: true, lit: ["n-cne", "n-tmm"], chips: ["c-limit"], s: "It rewrites tenant-b's iRule to <b>40 req/s</b>. The agents hold no tool that can change BNK." },
+    { d: "M180,346 H196 V632 H546 V230 H576", lit: ["n-client", "n-tmm"], chips: ["c-limit"], s: "The same 35 req/s now pass. The 429s stop." },
   ]},
   delete: { label: "Control plane", color: "--glue", t: "Delete a tenant", w: "Remove the project in Run:ai. BNK forgets it.", hops: [
     { d: "M180,98 H232", dash: true, lit: ["n-admin", "n-cp"], s: "The admin deletes the project in Run:ai." },
@@ -434,11 +453,11 @@ const INFO = {
   "n-sched": "<b>Run:ai scheduler.</b> Places every workload by project quota, priority and GPU fractions. Two tenants can share one GPU at 0.5 each.",
   "n-a": "<b>tenant-a models.</b> vLLM simulators with real vLLM metrics, two replicas at half a GPU each, so the Endpoint Picker has a choice.",
   "n-b": "<b>tenant-b model.</b> One vLLM simulator at half a GPU, the same GPU as one of tenant-a's.",
-  "n-ai": "<b>AI agent.</b> <code>platform/mcp/agent.py</code>, plain Python. It turns both MCP servers' tools into LLM function calls. Any OpenAI-compatible model; the lab uses NVIDIA Nemotron on build.nvidia.com. Writes need a human yes.",
-  "n-mcp": "<b>MCP servers.</b> NVIDIA's own <code>runai-mcp-server</code>, unchanged, which can manage Run:ai projects with a dry-run preview. And <code>bnk-tenancy-mcp</code> from this repo: read-only, stateless, answers what BNK built for a project.",
+  "n-ai": "<b>Agent team.</b> Three agents built with NVIDIA NeMo Agent Toolkit on NVIDIA Nemotron. The <b>monitor</b> holds the read-only BNK tools, the <b>operator</b> holds <code>approved_quota_change</code>, the <b>lead</b> holds the other two. Only the operator can change anything, and only after you type <code>yes</code>. Config: <code>agents/configs/factory-ops.yml</code>.",
+  "n-mcp": "<b>MCP servers, spec 2026-07-28, no sessions.</b> NVIDIA's <code>runai-mcp-server</code>, built from NVIDIA's source with one change so it runs stateless. Its write tool dry-runs first and needs <code>confirm</code>. And <code>bnk-tenancy-mcp</code> from this repo: four read-only tools for what BNK built, its usage and its 429s.",
   "n-dfront": "<b>BNK Endpoint Picker, Dynamo mode.</b> Runs in the Dynamo project's namespace like any tenant's picker. F5EPP with <code>engine: dynamo</code> and <code>natsURL</code>, as documented for BNK 2.4. It names the chosen Dynamo worker in the request.",
   "n-dwork": "<b>Dynamo Mocker workers.</b> Dynamo's own GPU-free engine, publishing real KV-cache events. Each pod has a Dynamo frontend in direct mode that serves the worker BNK picked. Half a GPU each from Run:ai.",
-  "n-dinfra": "<b>Dynamo operator + NATS.</b> NVIDIA's dynamo-platform chart. The operator gives each worker an ID derived from its pod name, which is the ID BNK's picker computes; NATS carries the KV-cache events.",
+  "n-dinfra": "<b>Dynamo operator + NATS.</b> NVIDIA's dynamo-platform chart. The operator runs the frontend and Mocker workers. NATS carries their KV-cache events to BNK's Endpoint Picker. This NATS has no auth, which is safe here only because one tenant runs Dynamo.",
 };
 const NS = "http://www.w3.org/2000/svg";
 const hopsG = document.getElementById("hops"), packetsG = document.getElementById("packets");
@@ -531,6 +550,31 @@ Object.keys(INFO).forEach(id => {
   hit.addEventListener("click", show); hit.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(); } });
   document.getElementById("hits").appendChild(hit);
 });
+const esc = t => String(t ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const ago = s => s ? `${Math.max(0, Math.round(Date.now() / 1000 - s))}s ago` : "";
+async function live() {
+  try {
+    const d = await (await fetch("state.json", { cache: "no-store" })).json();
+    const rows = d.tenants.map(t => `<tr><td>${esc(t.project)}</td><td>${esc(t.gpu ?? "-")} GPU</td><td>${esc(t.rateLimitRps ?? "-")} req/s</td>` +
+      `<td class="ok">${esc(t.servedRps ?? "?")} req/s</td><td class="${t.refusedRps > 0 ? "bad" : ""}">${esc(t.refusedRps ?? "?")} req/s</td></tr>`).join("");
+    document.getElementById("live-rows").innerHTML = rows || `<tr><td colspan="5">${esc(d.error || "No tenants yet.")}</td></tr>`;
+    document.getElementById("live-at").textContent = d.error || "updated " + ago(d.at);
+  } catch (e) { document.getElementById("live-at").textContent = "state feed not reachable"; }
+}
+const KIND = { action: "tool", prompt: "asks you", reply: "you", result: "result", final: "answer" };
+async function traceRun() {
+  try {
+    const d = await (await fetch("trace.json", { cache: "no-store" })).json();
+    document.getElementById("trace-q").textContent = d.question ? `"${d.question}"` : (d.note || "");
+    document.getElementById("trace-at").textContent = ago(d.at);
+    document.getElementById("trace-steps").innerHTML = d.steps.map(st => {
+      const cls = st.kind === "prompt" ? "ask" : st.kind === "reply" ? (/^yes$/i.test(st.text) ? "yes" : "no") : "";
+      const body = st.kind === "action" ? `<code>${esc(st.text)}</code> ${esc(st.input || "")}` : esc(st.text);
+      return `<li class="${cls}"><span class="k">${KIND[st.kind]}</span>${body}</li>`;
+    }).join("") || "<li>No steps recorded.</li>";
+  } catch (e) { document.getElementById("trace-at").textContent = "trace feed not reachable"; }
+}
+live(); traceRun(); setInterval(live, 5000); setInterval(traceRun, 5000);
 if (reduce) pause();
 const start = (location.hash || "").slice(1);
 select(FLOWS[start] ? start : "define");
