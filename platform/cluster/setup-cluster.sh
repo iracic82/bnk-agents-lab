@@ -127,7 +127,8 @@ ensure_tmm_external() {
     echo "  TMM external self-IP silent after 90s; recreating the TMM pod"
     kubectl delete pod -n f5-bnk -l app=f5-tmm --wait=true
     sleep 20
-    kubectl wait -n f5-bnk --for=condition=Ready pod -l app=f5-tmm --timeout=240s || true
+    # Containers, not pod Ready: the readiness gates only clear once TMM is serving.
+    kubectl wait -n f5-bnk --for=jsonpath='{.status.containerStatuses[0].ready}'=true pod -l app=f5-tmm --timeout=240s || true
   done
   # Carrying on would only spend the rest of the setup time on a lab with no working VIPs.
   echo "  ERROR: TMM external self-IP 10.1.10.201 still not answering after a TMM restart. BNK VIPs will not work." >&2
@@ -363,27 +364,16 @@ for _ in $(seq 1 60); do
   sleep 5
 done
 
-step "waiting for the TMM DaemonSet"
-# A TMM pod that isn't Ready after 5 minutes rarely recovers by itself; recreating it is the known fix
-# (see ensure_tmm_external). So recreate once at 5 minutes, and stop setup if it's still not Ready at 12.
-tmm_ready=0
-for i in $(seq 1 72); do
-  kubectl get ds -n f5-bnk f5-tmm >/dev/null 2>&1 && \
-    [ "$(kubectl get ds -n f5-bnk f5-tmm -o jsonpath='{.status.numberReady}' 2>/dev/null || echo 0)" -ge 1 ] && \
-    { echo "  f5-tmm ready"; tmm_ready=1; break; }
-  if [ "$i" = 30 ] && kubectl get pods -n f5-bnk -l app=f5-tmm --no-headers 2>/dev/null | grep -q .; then
-    echo "  f5-tmm not Ready after 5 minutes; recreating the TMM pod"
-    kubectl delete pod -n f5-bnk -l app=f5-tmm --wait=true || true
-  fi
+step "waiting for the TMM containers"
+# Wait for TMM's containers, not for the pod's Ready condition. The pod carries two readiness gates that
+# stay unmet until TMM has its VLANs, which are applied in the next step, so waiting for Ready here only
+# burns time. Whether TMM actually works is checked after the VLANs, by ensure_tmm_external.
+for _ in $(seq 1 60); do
+  st="$(kubectl get pods -n f5-bnk -l app=f5-tmm -o jsonpath='{range .items[*].status.containerStatuses[*]}{.ready}{" "}{end}' 2>/dev/null)"
+  [ -n "$st" ] && ! grep -q false <<<"$st" && { echo "  f5-tmm containers running"; break; }
   sleep 10
 done
-if [ "$tmm_ready" != 1 ]; then
-  echo "  ERROR: f5-tmm not Ready after 12 minutes and one restart. BNK can't serve traffic." >&2
-  kubectl get pods -n f5-bnk -o wide >&2 || true
-  kubectl describe pods -n f5-bnk -l app=f5-tmm 2>&1 | tail -30 >&2 || true
-  exit 1
-fi
-
+kubectl get pods -n f5-bnk -l app=f5-tmm -o wide
 
 step "TMM VLANs + self-IPs (external-vlan 1.1, internal-vlan 1.2)"
 retry_apply "$M/19-bnk-net-vlans.yaml"
