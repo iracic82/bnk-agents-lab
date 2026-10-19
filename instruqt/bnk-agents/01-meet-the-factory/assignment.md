@@ -27,11 +27,6 @@ tabs:
   type: service
   hostname: control
   port: 3001
-- id: p5j8uxvtyntq
-  title: Lab code
-  type: code
-  hostname: control
-  path: /root/lab
 difficulty: basic
 timelimit: 1200
 enhanced_loading: null
