@@ -1,8 +1,8 @@
 slug: bnk-agents
 id: qqizbgdw3v3p
 title: 'AI agents run the AI factory: NVIDIA Run:ai, NeMo Agent Toolkit and BNK 2.4'
-teaser: An agent team built with NVIDIA NeMo Agent Toolkit runs the AI factory over MCP.
-  It proposes Run:ai GPU quota, you approve, and BNK follows by itself.
+teaser: An agent team built with NVIDIA NeMo Agent Toolkit runs the AI factory over
+  MCP. It proposes Run:ai GPU quota, you approve, and BNK follows by itself.
 description: |-
   **Agents propose. You approve. BNK follows by itself.**
 
@@ -22,11 +22,11 @@ icon: https://storage.googleapis.com/instruqt-frontend/img/tracks/default.png
 tags:
 - runai
 - bnk
-- nemo-agent-toolkit
-- mcp
 - agents
 - f5
 - ai
+- nemo-agent-toolkit
+- mcp
 owner: f5
 developers:
 - iracic@infoblox.com
@@ -40,5 +40,5 @@ lab_config:
   feedback_tab_enabled: false
   loadingMessages: true
   hideStopButton: false
-checksum: "9904360572579189373"
+checksum: "7828382600114007016"
 enhanced_loading: false
