@@ -1,0 +1,13 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="style.css"></head><body><h1>The agent team, and the one path to a change</h1>
+<div class="row" style="align-items:stretch">
+ <div class="box ai"><div class="hd">Lead</div><div class="bd">Tools: <span class="chip c">monitor</span><span class="chip c">operator</span><br>Decides the quota from what the monitor reports.</div></div>
+ <div class="col" style="flex:1">
+  <div class="box ai"><div class="hd">Monitor</div><div class="bd">Tools: the four read-only BNK tools.<br><span class="muted">"tenant-b refuses ~25 req/s"</span></div></div>
+  <div class="box ai"><div class="hd">Operator</div><div class="bd">Tools: <span class="chip c">approved_quota_change</span> only.</div></div>
+ </div>
+ <div class="arrow"><b>→</b>dry run</div>
+ <div class="box you"><div class="hd">You at the prompt</div><div class="bd">
+  <code style="white-space:nowrap">GPU quota 0.5 -&gt; 2</code><br><code style="white-space:nowrap">(BNK limit 10 -&gt; 40 req/s)</code><br>Approve this change? <b>no</b></div></div>
+ <div class="arrow"><b>→</b>declined</div>
+ <div class="box grey" style="flex:.7"><div class="hd">Result</div><div class="bd">No write to Run:ai.<br>tenant-b stays 0.5 GPU, 10 req/s.</div></div>
+</div><script>document.documentElement.dataset.h = Math.ceil(document.body.getBoundingClientRect().height)</script></body></html>

@@ -5,6 +5,9 @@ type: challenge
 title: Give the GPUs back
 teaser: The rush is over and tenant-b holds 2 GPUs it doesn't use. The agents propose
   returning them to the pool.
+notes:
+- type: image
+  url: ../assets/notes-06.png
 tabs:
 - id: s9mlkct8txlf
   title: Terminal
@@ -25,6 +28,8 @@ timelimit: 1800
 enhanced_loading: null
 ---
 # Give the GPUs back
+
+![Quota follows demand down too](../assets/06-scale-down.png)
 
 tenant-b's launch is over. Stop its load: in **Terminal 2**, press `Ctrl+C`. Then start the quiet
 traffic it sends on a normal day:

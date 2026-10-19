@@ -5,6 +5,9 @@ type: challenge
 title: tenant-b gets throttled
 teaser: tenant-b sends more than its GPU share allows. BNK refuses the extra at the
   edge, before it ever reaches a GPU.
+notes:
+- type: image
+  url: ../assets/notes-03.png
 tabs:
 - id: gshgrhjc1for
   title: Terminal
@@ -31,6 +34,8 @@ timelimit: 1200
 enhanced_loading: null
 ---
 # tenant-b gets throttled
+
+![tenant-b sends more than its share](../assets/03-throttled.png)
 
 tenant-b's team just launched something popular. Their traffic jumps to 35 requests per second. Their
 Run:ai quota is 0.5 GPU, so BNK lets 10 per second through.

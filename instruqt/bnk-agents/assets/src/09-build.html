@@ -1,0 +1,12 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="style.css"></head><body><h1>Add an agent with config, not code</h1>
+<div class="row" style="align-items:stretch">
+ <div class="box grey"><div class="hd">factory-ops.yml</div><div class="bd m">monitor · operator · lead<br>max_gpu: 4</div></div>
+ <div class="arrow"><b>→</b>cp + edit</div>
+ <div class="box ai" style="flex:1.6"><div class="hd">/root/my-team.yml</div><div class="bd m">
+  <b>+</b> function_groups.bnk_usage: include [get_tenant_usage]<br>
+  <b>+</b> functions.cost_reporter: tool_names [bnk_usage]<br>
+  <b>+</b> workflow.tool_names: [monitor, operator, <b>cost_reporter</b>]<br>
+  <b>~</b> approved_quota_change.max_gpu: <b>2</b></div></div>
+ <div class="arrow"><b>→</b>labctl<br>agents</div>
+ <div class="box you"><div class="hd">Result</div><div class="bd">The lead asks cost_reporter for token usage. Asking for 4 GPUs is refused by the new cap of 2.</div></div>
+</div><script>document.documentElement.dataset.h = Math.ceil(document.body.getBoundingClientRect().height)</script></body></html>

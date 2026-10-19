@@ -1,0 +1,26 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="style.css"></head><body><h1>The AI factory you start with</h1>
+<div class="row">
+ <div class="col" style="flex:1.1">
+  <div class="box nv"><div class="hd">NVIDIA Run:ai projects <span class="tag">kai.resources</span></div><div class="bd">
+   <table class="s"><tr><th>Project</th><th>GPU quota</th><th>Engine</th></tr>
+   <tr><td><b>tenant-a</b></td><td>2</td><td>vLLM simulator</td></tr>
+   <tr><td><b>tenant-b</b></td><td>0.5</td><td>vLLM simulator</td></tr>
+   <tr><td><b>dynamo</b></td><td>1</td><td>NVIDIA Dynamo</td></tr></table></div></div>
+ </div>
+ <div class="arrow"><b>→</b>watch<br>Project</div>
+ <div class="box ctl" style="flex:.8"><div class="hd">Tenancy controller <span class="tag">node: control</span></div><div class="bd m">
+  rate = 20 req/s × GPU quota<br>never writes Run:ai</div></div>
+ <div class="arrow"><b>→</b>writes<br>BNK</div>
+ <div class="col" style="flex:1.1">
+  <div class="box bnk"><div class="hd">F5 BNK 2.4 front doors <span class="tag">TMM on the DPU node</span></div><div class="bd">
+   <table class="s"><tr><th>Gateway</th><th>Rate limit</th></tr>
+   <tr><td><code>tenant-a</code></td><td><span class="red">40</span> req/s</td></tr>
+   <tr><td><code>tenant-b</code></td><td><span class="red">10</span> req/s</td></tr>
+   <tr><td><code>dynamo</code></td><td><span class="red">20</span> req/s</td></tr></table></div></div>
+ </div>
+</div>
+<div class="row" style="margin-top:14px">
+ <div class="box ai"><div class="hd">Agent team · NVIDIA NeMo Agent Toolkit on Nemotron</div><div class="bd">
+  Not running yet. In challenge 4 it reads BNK and proposes Run:ai quota changes. You approve each one.</div></div>
+ <div class="box grey" style="flex:.7"><div class="hd">Four VMs</div><div class="bd m">control · runai · gpu (simulated) · dpu (simulated)</div></div>
+</div><script>document.documentElement.dataset.h = Math.ceil(document.body.getBoundingClientRect().height)</script></body></html>

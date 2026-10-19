@@ -1,0 +1,14 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="style.css"></head><body><h1>Quota follows demand down too</h1>
+<div class="row">
+ <div class="box grey" style="flex:.7"><div class="hd">Traffic now</div><div class="bd"><div class="big">4 req/s</div>steady, no 429s</div></div>
+ <div class="arrow"><b>→</b></div>
+ <div class="box ai"><div class="hd">Agents propose</div><div class="bd">Smallest quota that still covers 4 req/s, never below 0.5:<br><b>0.5 GPU = 10 req/s</b></div></div>
+ <div class="arrow"><b>→</b></div>
+ <div class="box you" style="flex:.7"><div class="hd">You</div><div class="bd big">yes</div></div>
+ <div class="arrow"><b>→</b></div>
+ <div class="col" style="flex:1">
+  <div class="box nv"><div class="hd">Run:ai</div><div class="bd">tenant-b <b>2 → 0.5</b> GPU</div></div>
+  <div class="box bnk"><div class="hd">BNK</div><div class="bd">tenant-b <b>40 → 10</b> req/s</div></div>
+ </div>
+</div>
+<div class="foot">1.5 GPUs go back to the pool, and tenant-b's 4 req/s still pass with no 429s.</div><script>document.documentElement.dataset.h = Math.ceil(document.body.getBoundingClientRect().height)</script></body></html>

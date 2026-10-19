@@ -5,6 +5,9 @@ type: challenge
 title: The agent team
 teaser: Three NeMo Agent Toolkit agents find the throttled tenant and propose a fix.
   You say no, and nothing changes.
+notes:
+- type: image
+  url: ../assets/notes-04.png
 tabs:
 - id: yflrynip4533
   title: Terminal
@@ -31,6 +34,8 @@ timelimit: 1800
 enhanced_loading: null
 ---
 # The agent team
+
+![The agent team and the one path to a change](../assets/04-team.png)
 
 The team is three agents built with NVIDIA NeMo Agent Toolkit, running on NVIDIA Nemotron:
 

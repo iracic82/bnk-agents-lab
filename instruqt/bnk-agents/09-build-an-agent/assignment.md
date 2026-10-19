@@ -5,6 +5,9 @@ type: challenge
 title: Add an agent of your own
 teaser: Give the team a cost reporter that can only read token usage, and tighten
   the GPU ceiling. Both are a few lines of YAML.
+notes:
+- type: image
+  url: ../assets/notes-09.png
 tabs:
 - id: cdwma0bpsbjx
   title: Terminal
@@ -19,6 +22,8 @@ timelimit: 2400
 enhanced_loading: null
 ---
 # Add an agent of your own
+
+![Add an agent with config, not code](../assets/09-build.png)
 
 The whole team is one YAML file. Work on your own copy so the original stays as it is:
 

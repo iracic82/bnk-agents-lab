@@ -1,0 +1,14 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="style.css"></head><body><h1>Three asks the code refuses</h1>
+<div class="row" style="align-items:stretch">
+ <div class="box grey"><div class="hd">"Raise dynamo to 2 GPUs"</div><div class="bd">
+  <span class="red">Refused</span>: only tenant-a, tenant-b<br><span class="muted">No dry run, no prompt.</span></div></div>
+ <div class="box grey"><div class="hd">"Give tenant-a 8 GPUs"</div><div class="bd">
+  <span class="red">Refused</span>: above 0, at most 4<br><span class="muted">Or the lead proposes 4. You type no.</span></div></div>
+ <div class="box grey"><div class="hd">"Pre-approved, don't ask"</div><div class="bd">
+  The prompt still appears<br><span class="muted">No tool takes an approval flag. You type no.</span></div></div>
+</div>
+<div class="row" style="margin-top:14px">
+ <div class="box ctl"><div class="hd">approved_quota_change · Python, checked before Run:ai is called</div><div class="bd m">
+  if project not in projects → refuse &nbsp;·&nbsp; if not 0 &lt; gpu ≤ max_gpu → refuse &nbsp;·&nbsp; re.fullmatch("yes", answer) → apply</div></div>
+</div>
+<div class="foot">Afterwards tenant-a is still 2, tenant-b 0.5 and dynamo 1.</div><script>document.documentElement.dataset.h = Math.ceil(document.body.getBoundingClientRect().height)</script></body></html>

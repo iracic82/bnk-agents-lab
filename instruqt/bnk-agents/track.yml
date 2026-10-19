@@ -1,18 +1,39 @@
 slug: bnk-agents
 id: qqizbgdw3v3p
 title: 'AI agents run the AI factory: NVIDIA Run:ai, NeMo Agent Toolkit and BNK 2.4'
-teaser: A short description of the track.
+teaser: An agent team built with NVIDIA NeMo Agent Toolkit runs the AI factory over MCP.
+  It proposes Run:ai GPU quota, you approve, and BNK follows by itself.
 description: |-
-  A long description of the track.
+  **Agents propose. You approve. BNK follows by itself.**
 
-  You can use any GitHub flavoured markdown.
+  NVIDIA Run:ai decides how many GPUs each tenant gets. F5 BIG-IP Next for Kubernetes (BNK) 2.4 turns
+  that share into a rate limit at the edge, and refuses the excess with 429 before it reaches a GPU.
+  In this lab an agent team built with NVIDIA NeMo Agent Toolkit, running on NVIDIA Nemotron, watches
+  both through MCP. When a tenant is throttled, the agents propose more GPU quota in Run:ai and wait
+  for your answer. Say yes, and BNK raises the tenant's limit without anyone configuring it.
+
+  Along the way you call the MCP tools by hand, decline and approve changes, give GPUs back when the
+  traffic drops, try to talk the agents past their guardrails, watch BNK route an NVIDIA Dynamo tenant,
+  and add an agent of your own with a few lines of YAML.
+
+  The software is real: BNK 2.4, open-source Run:ai, both MCP servers, NeMo Agent Toolkit and Nemotron.
+  The GPUs, model servers and BlueField DPU are simulated, and the lab names where.
 icon: https://storage.googleapis.com/instruqt-frontend/img/tracks/default.png
-tags: []
+tags:
+- runai
+- bnk
+- nemo-agent-toolkit
+- mcp
+- agents
+- f5
+- ai
 owner: f5
 developers:
 - iracic@infoblox.com
-idle_timeout: 300
-timelimit: 1200
+show_timer: true
+skipping_enabled: true
+idle_timeout: 14400
+timelimit: 14400
 lab_config:
   sidebar_enabled: true
   feedback_recap_enabled: true

@@ -5,6 +5,11 @@ type: challenge
 title: Meet the AI factory
 teaser: Three tenants share simulated GPUs. Run:ai decides who gets GPUs, BNK decides
   which requests reach them.
+notes:
+- type: image
+  url: ../assets/notes-01-hero.png
+- type: image
+  url: ../assets/notes-01-real.png
 tabs:
 - id: 7xfwlo9yleuj
   title: Terminal
@@ -32,6 +37,8 @@ timelimit: 1200
 enhanced_loading: null
 ---
 # Meet the AI factory
+
+![The AI factory you start with](../assets/01-factory.png)
 
 Before any agent touches this factory, have a look at what's running.
 

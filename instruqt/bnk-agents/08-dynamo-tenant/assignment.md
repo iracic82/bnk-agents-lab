@@ -5,6 +5,9 @@ type: challenge
 title: A Dynamo tenant, to BNK and the agents alike
 teaser: NVIDIA Dynamo serves one tenant. BNK picks its worker from Dynamo's own KV-cache
   events, and the agents watch it like any other tenant.
+notes:
+- type: image
+  url: ../assets/notes-08.png
 tabs:
 - id: 8pbgpa1zlvxu
   title: Terminal
@@ -27,6 +30,8 @@ timelimit: 1800
 enhanced_loading: null
 ---
 # A Dynamo tenant, to BNK and the agents alike
+
+![BNK in front of NVIDIA Dynamo](../assets/08-dynamo.png)
 
 The third tenant, `dynamo`, doesn't use vLLM. It runs NVIDIA Dynamo: a frontend and two workers, each
 keeping a KV cache of the prompts it has seen. The workers here are Dynamo's **Mocker**, which registers

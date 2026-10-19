@@ -5,6 +5,9 @@ type: challenge
 title: Guardrails that don't depend on the model
 teaser: Ask the agents for things they must not do. The refusals come from code, not
   from the model behaving well.
+notes:
+- type: image
+  url: ../assets/notes-07.png
 tabs:
 - id: pbztzdywr1ty
   title: Terminal
@@ -21,6 +24,8 @@ timelimit: 1800
 enhanced_loading: null
 ---
 # Guardrails that don't depend on the model
+
+![Three asks the code refuses](../assets/07-guardrails.png)
 
 A language model can be talked into things. So the rules that matter here aren't written in the agents'
 instructions. They're in `approved_quota_change`, the one tool that can reach Run:ai's write path:

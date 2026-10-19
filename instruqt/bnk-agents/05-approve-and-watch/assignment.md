@@ -5,6 +5,9 @@ type: challenge
 title: Approve, and watch BNK follow
 teaser: Say yes. Run:ai changes tenant-b's quota, the controller raises BNK's limit
   by itself, and the 429s stop.
+notes:
+- type: image
+  url: ../assets/notes-05.png
 tabs:
 - id: kkqzvtfe0jng
   title: Terminal
@@ -36,6 +39,8 @@ timelimit: 1800
 enhanced_loading: null
 ---
 # Approve, and watch BNK follow
+
+![You approve, Run:ai changes, BNK follows](../assets/05-approve.png)
 
 Same team, same question. This time you approve.
 

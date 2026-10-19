@@ -1,0 +1,13 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="style.css"></head><body><h1>Two MCP servers, called by hand</h1>
+<div class="row">
+ <div class="box you" style="flex:.6"><div class="hd">You · labctl mcp</div><div class="bd">The same calls the agents will make, sent raw so you see the protocol.</div></div>
+ <div class="arrow"><b>→</b>POST /mcp<br>MCP 2026-07-28<br>no session id</div>
+ <div class="col" style="flex:1.4">
+  <div class="box bnk"><div class="hd">bnk-tenancy-mcp :8090 <span class="tag">read-only</span></div><div class="bd">
+   <span class="chip r">get_tenant_front_door</span><span class="chip r">get_tenant_usage</span><span class="chip r">get_tenant_rejections</span><span class="chip r">list_tenants</span></div></div>
+  <div class="box nv"><div class="hd">NVIDIA Run:ai MCP server :8080 <span class="tag">stateless build</span></div><div class="bd">
+   <span class="chip g">list_projects</span><span class="chip g">manage_org_unit</span>
+   &nbsp; <span class="muted">dry run → returns the diff</span> &nbsp;·&nbsp; <span class="muted">no <code>confirm=true</code> →</span> <span class="red">confirmation_required</span></div></div>
+ </div>
+</div>
+<div class="foot">Every request carries <code>MCP-Protocol-Version</code> and its own <code>_meta</code>, so any server replica can answer it.</div><script>document.documentElement.dataset.h = Math.ceil(document.body.getBoundingClientRect().height)</script></body></html>

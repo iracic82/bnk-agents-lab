@@ -1,0 +1,13 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="style.css"></head><body><h1>What you built</h1>
+<div class="row">
+ <div class="box bnk" style="flex:.8"><div class="hd">1 · BNK sees it</div><div class="bd">tenant-b refused at the edge with 429s</div></div>
+ <div class="arrow"><b>→</b></div>
+ <div class="box ai" style="flex:.8"><div class="hd">2 · Agents propose</div><div class="bd">read BNK over MCP, dry-run Run:ai</div></div>
+ <div class="arrow"><b>→</b></div>
+ <div class="box you" style="flex:.6"><div class="hd">3 · You</div><div class="bd big">yes</div></div>
+ <div class="arrow"><b>→</b></div>
+ <div class="box nv" style="flex:.8"><div class="hd">4 · Run:ai applies</div><div class="bd">quota 0.5 → 2 → 0.5</div></div>
+ <div class="arrow"><b>→</b></div>
+ <div class="box ctl" style="flex:.8"><div class="hd">5 · BNK follows</div><div class="bd">limit 10 → 40 → 10</div></div>
+</div>
+<div class="foot">Run:ai owns quota, BNK owns the edge, the controller keeps them in line, and the agents only propose.</div><script>document.documentElement.dataset.h = Math.ceil(document.body.getBoundingClientRect().height)</script></body></html>

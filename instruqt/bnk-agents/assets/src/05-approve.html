@@ -1,0 +1,15 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="style.css"></head><body><h1>You approve. Run:ai changes. BNK follows.</h1>
+<div class="row">
+ <div class="box you" style="flex:.7"><div class="hd">You</div><div class="bd big">yes</div></div>
+ <div class="arrow"><b>→</b>confirm=true</div>
+ <div class="box nv"><div class="hd">NVIDIA Run:ai</div><div class="bd">tenant-b GPU quota<br><span class="big">0.5 → 2</span></div></div>
+ <div class="arrow"><b>→</b>Project<br>changes</div>
+ <div class="box ctl" style="flex:.8"><div class="hd">Tenancy controller</div><div class="bd">sees the change, rewrites the iRule. Never heard from the agents.</div></div>
+ <div class="arrow"><b>→</b></div>
+ <div class="box bnk"><div class="hd">BNK tenant-b</div><div class="bd">rate limit<br><span class="big red">10 → 40</span> req/s</div></div>
+</div>
+<div class="row" style="margin-top:14px">
+ <div class="box grey"><div class="hd">Before</div><div class="bd">35 req/s offered · <span class="green">10 served</span> · <span class="red">25 refused</span></div></div>
+ <div class="box grey"><div class="hd">After</div><div class="bd">35 req/s offered · <span class="green">35 served</span> · 0 refused</div></div>
+</div>
+<div class="foot">The agents hold no tool that can change BNK. The only path to the edge goes through Run:ai and the controller.</div><script>document.documentElement.dataset.h = Math.ceil(document.body.getBoundingClientRect().height)</script></body></html>

@@ -1,0 +1,13 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="style.css"></head><body><h1>tenant-b sends more than its share</h1>
+<div class="row">
+ <div class="box grey" style="flex:.7"><div class="hd">labctl load overload</div><div class="bd"><div class="big">35 req/s</div>to tenant-b's VIP</div></div>
+ <div class="arrow"><b>→</b></div>
+ <div class="box bnk"><div class="hd">BNK TMM · tenant-b iRule</div><div class="bd">
+  <code>rl_n &gt; 10</code> → reject<br>quota 0.5 GPU × 20 = <span class="red">10 req/s</span></div></div>
+ <div class="col" style="flex:0 0 auto">
+  <div class="arrow"><b>→</b><span class="green">10 req/s · 200</span></div>
+  <div class="arrow"><b>↓</b><span class="red">25 req/s · 429</span></div>
+ </div>
+ <div class="box nv" style="flex:.8"><div class="hd">tenant-b model</div><div class="bd">Sees only the 10 req/s BNK lets through. No GPU time spent on the rest.</div></div>
+</div>
+<div class="foot">You see it three ways: the 429s in Terminal 2, <code>get_tenant_rejections</code> with <code>throttled: true</code>, and the 429 line in Grafana.</div><script>document.documentElement.dataset.h = Math.ceil(document.body.getBoundingClientRect().height)</script></body></html>

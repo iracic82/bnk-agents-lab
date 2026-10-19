@@ -1,0 +1,13 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="style.css"></head><body><h1>BNK in front of NVIDIA Dynamo</h1>
+<div class="row">
+ <div class="box grey" style="flex:.6"><div class="hd">curl</div><div class="bd">same prompt three times</div></div>
+ <div class="arrow"><b>→</b>dynamo VIP</div>
+ <div class="box bnk"><div class="hd">BNK TMM · dynamo</div><div class="bd">route · 20 req/s limit · tag <code>X-BNK-Tenant: dynamo</code></div></div>
+ <div class="arrow"><b>→</b>which worker?</div>
+ <div class="box bnk"><div class="hd">BNK Endpoint Picker <span class="tag">engine: dynamo</span></div><div class="bd">Knows which worker holds which prompt, from KV-cache events on NATS.</div></div>
+ <div class="arrow"><b>→</b>worker ID<br>in request</div>
+ <div class="box dyn"><div class="hd">NVIDIA Dynamo</div><div class="bd">frontend + 2 Mocker workers<br>placed by <code>runai-scheduler</code></div></div>
+</div>
+<div class="row" style="margin-top:14px">
+ <div class="box ai"><div class="hd">Agents</div><div class="bd">Read dynamo with the same BNK tools: 20 req/s limit (1 GPU), no refusals. They can't change it: dynamo isn't on the allowed list.</div></div>
+</div><script>document.documentElement.dataset.h = Math.ceil(document.body.getBoundingClientRect().height)</script></body></html>

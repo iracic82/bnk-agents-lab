@@ -5,6 +5,9 @@ type: challenge
 title: What you built, and what's real
 teaser: A recap of the loop, what in this lab is real and what is simulated, and where
   it goes next.
+notes:
+- type: image
+  url: ../assets/notes-10.png
 tabs:
 - id: pn5dr1ys2eys
   title: Terminal
@@ -27,6 +30,8 @@ timelimit: 900
 enhanced_loading: null
 ---
 # What you built, and what's real
+
+![What you built](../assets/10-recap.png)
 
 A tenant hit its limit. Agents noticed, worked out the fix and asked you. You said yes, and the fix
 reached the edge without anyone configuring it. Then the traffic dropped and the GPUs went back to the pool

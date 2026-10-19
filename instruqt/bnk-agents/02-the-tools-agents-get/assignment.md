@@ -5,6 +5,9 @@ type: challenge
 title: The tools an agent gets
 teaser: Call both MCP servers by hand. One reads BNK, one changes Run:ai, and the
   change never happens without approval.
+notes:
+- type: image
+  url: ../assets/notes-02.png
 tabs:
 - id: aciv93h0xkrk
   title: Terminal
@@ -32,6 +35,8 @@ timelimit: 1200
 enhanced_loading: null
 ---
 # The tools an agent gets
+
+![Two MCP servers, called by hand](../assets/02-tools.png)
 
 Agents don't log in to consoles. They call tools over the Model Context Protocol (MCP). This factory has
 two MCP servers, and before you hand them to an agent, call them yourself.
