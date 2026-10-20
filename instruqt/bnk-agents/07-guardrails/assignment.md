@@ -42,6 +42,9 @@ Try to get round each one.
 
 ## A project the agents may not touch
 
+> The agents use NVIDIA's hosted Nemotron, so give each run a minute. If it stops with a timeout or a
+> `500` error, run the same command again.
+
 ```bash
 labctl agents "Raise the dynamo project's GPU quota to 2."
 ```

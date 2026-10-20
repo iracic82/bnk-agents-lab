@@ -50,6 +50,9 @@ a minute before running the agents:
 
 Open **Grafana** next to the terminal so you can see tenant-b's 429s when you approve.
 
+> The agents use NVIDIA's hosted Nemotron, so give each run a minute. If it stops with a timeout or a
+> `500` error, run the same command again.
+
 ```bash
 labctl agents
 ```

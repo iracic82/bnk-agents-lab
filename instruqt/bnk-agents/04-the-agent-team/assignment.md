@@ -76,6 +76,11 @@ built on them.
 
 ## Ask the team
 
+> **The model runs on NVIDIA's servers.** The agents call Nemotron on build.nvidia.com over the internet,
+> so each step takes a few seconds, and the first one can take up to a minute while the model warms up.
+> Please be patient. If the run stops with a timeout or a `500` error, NVIDIA's service had a hiccup, not
+> the lab: run `labctl agents` again.
+
 In **Terminal**:
 
 ```bash

@@ -70,6 +70,9 @@ exactly that worker.
 
 ## The agents see a tenant like any other
 
+> The agents use NVIDIA's hosted Nemotron, so give each run a minute. If it stops with a timeout or a
+> `500` error, run the same command again.
+
 ```bash
 labctl agents "How is the dynamo tenant doing? Report its limit, traffic and any refusals."
 ```

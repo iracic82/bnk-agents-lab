@@ -43,6 +43,9 @@ Those GPUs are reserved for tenant-b and no other tenant can count on them.
 
 Wait a minute for the averages to settle, then ask the team about tenant-b:
 
+> The agents use NVIDIA's hosted Nemotron, so give each run a minute. If it stops with a timeout or a
+> `500` error, run the same command again.
+
 ```bash
 labctl agents "tenant-b's traffic dropped. Is its GPU quota still right?"
 ```

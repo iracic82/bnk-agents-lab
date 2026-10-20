@@ -70,6 +70,9 @@ Then let the lead use it. In `workflow:`, change `tool_names` to:
 
 Run your team:
 
+> The agents use NVIDIA's hosted Nemotron, so give each run a minute. If it stops with a timeout or a
+> `500` error, run the same command again.
+
 ```bash
 AGENTS_CONFIG=/root/my-team.yml labctl agents "How many tokens has tenant-b used?"
 ```
