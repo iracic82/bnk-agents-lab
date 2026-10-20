@@ -48,6 +48,8 @@ functions:
     llm_name: nemotron
     tool_names: [bnk]
     max_iterations: 8
+    # Hosted models sometimes return an empty or garbled reply. Ask again instead of failing the run.
+    parse_agent_response_max_retries: 3
     verbose: true
     description: |
       Reports facts about the AI factory's tenants as seen at the BNK edge: each tenant's front door,
@@ -59,6 +61,8 @@ functions:
     llm_name: nemotron
     tool_names: [approved_quota_change]
     max_iterations: 4
+    # Hosted models sometimes return an empty or garbled reply. Ask again instead of failing the run.
+    parse_agent_response_max_retries: 3
     verbose: true
     description: |
       Proposes a new Run:ai GPU quota for one tenant. A person approves or declines; nothing changes
@@ -69,6 +73,8 @@ workflow:
   llm_name: nemotron
   tool_names: [monitor, operator]
   max_iterations: 10
+  # Hosted models sometimes return an empty or garbled reply. Ask again instead of failing the run.
+  parse_agent_response_max_retries: 3
   verbose: true
   additional_instructions: |
     You lead a small team that runs an AI factory. NVIDIA Run:ai gives each tenant a GPU quota. F5 BNK
