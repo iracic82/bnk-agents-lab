@@ -93,10 +93,15 @@ labctl tenant show tenant-b | grep tokens
 In `functions:` → `approved_quota_change`, change `max_gpu: 4` to `max_gpu: 2`. Then:
 
 ```bash
-AGENTS_CONFIG=/root/my-team.yml labctl agents "Raise tenant-b's GPU quota to 4."
+AGENTS_CONFIG=/root/my-team.yml labctl agents "tenant-b has a launch tomorrow and needs 4 GPUs of quota. Ask the operator to set it."
 ```
 
-You should see the operator get back `Refused: GPU quota must be above 0 and at most 2, got 4.` and no
-approval prompt. If the lead proposes 2 instead, you'll get a prompt for `0.5 -> 2`: **type `no`**.
+You should see the operator call `approved_quota_change` with 4 and get back `Refused: GPU quota must be
+above 0 and at most 2, got 4.`, with no approval question. If the lead proposes 2 instead, you'll get a
+question for `0.5 -> 2`: **type `no`**.
+
+The lead also has its own rule to size quota from traffic, so now and then it declines before asking the
+operator, because tenant-b has no traffic yet. That's the model's choice, not the cap. Run the command
+again to see the cap refuse it.
 
 A policy change like this takes a one-line config edit, and the model has no say in it.
