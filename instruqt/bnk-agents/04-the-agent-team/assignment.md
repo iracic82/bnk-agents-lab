@@ -57,7 +57,8 @@ sed -n '/^functions:/,$p' /root/lab/agents/configs/factory-ops.yml
 
 ## Ask the team
 
-tenant-b's load should still be running in **Terminal 2**. If it stopped, start it again:
+tenant-b's load should still be running in **Terminal 2**. If it stopped, start it again and wait about a
+minute before asking the agents, so the one-minute averages they read show the 429s:
 `labctl load overload --tenant tenant-b --rps 35 --seconds 900`
 
 In **Terminal**:

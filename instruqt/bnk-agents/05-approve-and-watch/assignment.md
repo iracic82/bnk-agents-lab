@@ -44,7 +44,8 @@ enhanced_loading: null
 
 Same team, same question. This time you approve.
 
-Make sure tenant-b's load is still running in **Terminal 2**:
+Make sure tenant-b's load is still running in **Terminal 2**. If it stopped, start it again and wait about
+a minute before running the agents:
 `labctl load overload --tenant tenant-b --rps 35 --seconds 900`
 
 Open **Grafana** next to the terminal so you can see tenant-b's 429s when you approve.
