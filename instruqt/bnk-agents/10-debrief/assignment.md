@@ -17,7 +17,7 @@ tabs:
   title: Grafana
   type: service
   hostname: control
-  path: /d/one-tenant-two-planes?orgId=1&kiosk&hideLogo&refresh=5s
+  path: /d/one-tenant-two-planes?orgId=1&kiosk&hideLogo&from=now-2h&to=now
   port: 3000
 - id: om8oiefnm2xv
   title: Topology
@@ -46,8 +46,10 @@ for t in tenant-a tenant-b dynamo; do
 done
 ```
 
-In **Grafana**, scroll back over the session: tenant-b's 429s rising, stopping when you approved, its quota
-going 0.5 → 2 → 0.5.
+The **Grafana** tab here shows the last two hours rather than the last few minutes, so the whole session
+is on one screen. Look at the **Project tenant-b** row. You should see tenant-b's 429s rise when its load
+started, drop to zero when you approved 2 GPUs, and its GPU quota step 0.5 → 2 → 0.5. If your session ran
+longer than two hours, the earliest part will be off the left edge.
 
 ## Who did what
 

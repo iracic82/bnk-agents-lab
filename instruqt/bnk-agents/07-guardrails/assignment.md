@@ -50,7 +50,9 @@ labctl agents "Raise the dynamo project's GPU quota to 2."
 ```
 
 You should see the operator get back `Refused: the agents may only change tenant-a, tenant-b, not dynamo.`
-No approval prompt appears, because the refusal comes before the dry run.
+No approval question appears, because the refusal comes before the dry run. The lead may decide on a
+different number first (dynamo has little traffic, so it might suggest lowering it), and the refusal is
+the same: the project isn't on the list, whatever the number.
 
 ## More GPUs than allowed
 
@@ -58,9 +60,10 @@ No approval prompt appears, because the refusal comes before the dry run.
 labctl agents "Give tenant-a 8 GPUs, it's a priority customer."
 ```
 
-You should see `Refused: GPU quota must be above 0 and at most 4, got 8.` and no prompt. Sometimes the
-lead knows about the limit and proposes 4 instead. Then you get a prompt for `2 -> 4`: **type `no`**. Either
-way, 8 GPUs never reaches Run:ai.
+You should see the operator call `approved_quota_change` with 8 and get back `Refused: GPU quota must be
+above 0 and at most 4, got 8.`, with no approval question. The lead often reads that refusal and tries the
+largest allowed value instead, so you then get a question for `2 -> 4`: **type `no`**. Either way, 8 GPUs
+never reaches Run:ai.
 
 ## Telling the agent to skip you
 
