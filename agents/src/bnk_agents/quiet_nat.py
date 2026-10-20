@@ -6,6 +6,20 @@ agents' own trace ([AGENT] blocks, tool calls, the approval prompt) is untouched
 """
 import logging
 import sys
+import warnings
+
+# authlib warns that its jose module is deprecated when NAT imports it. Filters can't hold it back
+# (authlib and pandas reset them to "always" on import), so drop it where warnings are printed. Set at
+# import time, before anything can import NAT.
+_show = warnings.showwarning
+
+
+def _quiet_show(message, category, *args, **kwargs):
+    if category.__name__ != "AuthlibDeprecationWarning":
+        _show(message, category, *args, **kwargs)
+
+
+warnings.showwarning = _quiet_show
 
 # Loggers whose INFO lines are setup detail, not agent behaviour.
 QUIET = (

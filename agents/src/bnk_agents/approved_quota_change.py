@@ -62,9 +62,12 @@ async def approved_quota_change(config: ApprovedQuotaChangeConfig, builder: Buil
             return f"Run:ai refused the dry run, nothing was changed: {e}"
         before, after = _gpu(preview["before"], config.node_pool), _gpu(preview["after"], config.node_pool)
 
-        text = (f"Run:ai dry run for project {project}: GPU quota {before:g} -> {after:g} "
+        # The question has to stand out from the agents' trace scrolling past it, so frame it.
+        rule = "=" * 72
+        text = (f"\n\n{rule}\n  YOUR APPROVAL IS NEEDED\n{rule}\n"
+                f"Run:ai dry run for project {project}: GPU quota {before:g} -> {after:g} "
                 f"(BNK limit {before * config.rps_per_gpu:g} -> {after * config.rps_per_gpu:g} req/s). "
-                "Approve this change? Type yes or no.")
+                f"Approve this change? Type yes or no.\n{rule}\n> ")
         manager = Context.get().user_interaction_manager
         response = await manager.prompt_user_input(HumanPromptText(text=text, required=True, placeholder="yes or no"))
         if not re.fullmatch(r"yes", response.content.text.strip().lower()):
