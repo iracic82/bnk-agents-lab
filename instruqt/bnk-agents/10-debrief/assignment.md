@@ -51,6 +51,25 @@ is on one screen. Look at the **Project tenant-b** row. You should see tenant-b'
 started, drop to zero when you approved 2 GPUs, and its GPU quota step 0.5 → 2 → 0.5. If your session ran
 longer than two hours, the earliest part will be off the left edge.
 
+## Optional: watch the loop once more
+
+No need to run anything else for the debrief. If the tenant-b row is flat (you skipped ahead, or it was a
+while ago) and you'd like to see it happen, this replays the loop in about three minutes. It uses the same
+Run:ai MCP tool the operator does, with your approval given up front, so there's no agent and no prompt.
+
+```bash
+labctl load overload --tenant tenant-b --rps 35 --seconds 180 >/dev/null 2>&1 &
+sleep 60
+labctl mcp runai call manage_org_unit '{"action":"update","orgType":"project","name":"tenant-b","spec":{"quota":[{"nodePoolName":"default","gpuDeserved":2}]},"confirm":true}' >/dev/null 2>&1
+sleep 90
+labctl mcp runai call manage_org_unit '{"action":"update","orgType":"project","name":"tenant-b","spec":{"quota":[{"nodePoolName":"default","gpuDeserved":0.5}]},"confirm":true}' >/dev/null 2>&1
+wait; labctl tenant show tenant-b | grep -iE 'gpu deserved|rate limit'
+```
+
+In **Grafana** you should see the same shape as before: 429s for the first minute, then none once quota
+reaches 2 GPUs, and the quota back at 0.5 at the end. The last command shows tenant-b at 0.5 GPU and
+10 req/s again.
+
 ## Who did what
 
 | Part | Product | What it did here |
