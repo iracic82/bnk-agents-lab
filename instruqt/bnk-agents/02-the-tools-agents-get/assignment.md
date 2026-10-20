@@ -47,7 +47,9 @@ two MCP servers, and before you hand them to an agent, call them yourself.
 | `runai` | NVIDIA, from Run:ai's source | Read and change Run:ai: projects, quotas, workloads. |
 
 Both speak the newest MCP version, 2026-07-28, which has no sessions. Every request stands on its own, so
-there's no login handshake first and nothing for a load balancer to keep sticky.
+there's no login handshake first and nothing for a load balancer to keep sticky. `labctl mcp` uses that
+version. They also speak the previous one, 2025-11-25, which is what NeMo Agent Toolkit's MCP client uses
+today, so the agents in challenge 4 connect with that.
 
 ## The BNK side
 

@@ -47,5 +47,11 @@ question="${1:-Is any tenant being refused at the BNK edge? If so, propose the G
 log_dir=/var/log/bnk-agents
 mkdir -p "$log_dir"
 printf '# question: %s\n' "$question" > "$log_dir/last-run.log"
-cmd=$(printf '%q ' "$VENV/bin/nat" run --config_file "${AGENTS_CONFIG:-$HERE/configs/factory-ops.yml}" --input "$question")
-exec script -q -a -e -c "$cmd" "$log_dir/last-run.log"
+# NAT asks about anonymous usage telemetry on first run. In a shared lab, keep it off and skip the question.
+export NAT_TELEMETRY_ENABLED="${NAT_TELEMETRY_ENABLED:-false}"
+# quiet_nat runs NAT's own CLI with tool-registration and import noise turned down.
+cmd=$(printf '%q ' "$VENV/bin/python" -m bnk_agents.quiet_nat run --config_file "${AGENTS_CONFIG:-$HERE/configs/factory-ops.yml}" --input "$question")
+# authlib prints a deprecation warning when NAT imports it, and pandas/numpy re-enable such warnings as
+# they load, so a Python-side filter can't hold. Drop just that warning's lines from stderr.
+cmd="$cmd 2> >(grep -v --line-buffered -e AuthlibDeprecationWarning -e 'compatible before version 2.0.0' -e 'from authlib.jose import' >&2)"
+exec script -q -a -e -c "bash -c $(printf '%q' "$cmd")" "$log_dir/last-run.log"

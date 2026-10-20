@@ -55,7 +55,7 @@ going 0.5 → 2 → 0.5.
 |---|---|---|
 | GPU quota per tenant | NVIDIA Run:ai (open source) | Held each tenant's share, applied the change you approved |
 | The agents | NVIDIA NeMo Agent Toolkit, NVIDIA Nemotron | Read BNK, reasoned about quota, proposed one change at a time |
-| Agent tools | MCP 2026-07-28, stateless, on both servers | Run:ai's own MCP server and F5's BNK tenancy server |
+| Agent tools | MCP on both servers: 2026-07-28 stateless, and 2025-11-25 for the agents | Run:ai's own MCP server and F5's BNK tenancy server |
 | The edge | F5 BIG-IP Next for Kubernetes 2.4 | Front door per tenant, limits from quota, 429s before a GPU is touched, Dynamo worker picking |
 | The glue | A small open-source controller | Watches Run:ai, writes BNK |
 | The approval | You | Nothing changed without your `yes` |

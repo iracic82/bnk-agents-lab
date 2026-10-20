@@ -23,6 +23,7 @@ class ApprovedQuotaChangeConfig(FunctionBaseConfig, name="approved_quota_change"
     node_pool: str = Field(default="default", description="Node pool whose GPU quota is changed")
     rps_per_gpu: float = Field(default=20.0, description="BNK requests/s per deserved GPU (tenancy controller policy)")
     max_gpu: float = Field(default=4.0, description="Largest GPU quota the agents may propose")
+    gpu_step: float = Field(default=0.5, description="GPU quota must be a whole number of these steps")
 
 
 def _gpu(snapshot: dict, pool: str) -> float:
@@ -49,6 +50,9 @@ async def approved_quota_change(config: ApprovedQuotaChangeConfig, builder: Buil
             return f"Refused: the agents may only change {', '.join(config.projects)}, not {project}."
         if not 0 < gpu_deserved <= config.max_gpu:
             return f"Refused: GPU quota must be above 0 and at most {config.max_gpu:g}, got {gpu_deserved:g}."
+        if abs(gpu_deserved / config.gpu_step - round(gpu_deserved / config.gpu_step)) > 1e-9:
+            return (f"Refused: GPU quota must be in steps of {config.gpu_step:g} GPU, got {gpu_deserved:g}. "
+                    f"Propose the next step up that covers the traffic.")
 
         args = {"action": "update", "orgType": "project", "name": project,
                 "spec": {"quota": [{"nodePoolName": config.node_pool, "gpuDeserved": gpu_deserved}]}}

@@ -61,15 +61,32 @@ tenant-b's load should still be running in **Terminal 2**. If it stopped, start 
 minute before asking the agents, so the one-minute averages they read show the 429s:
 `labctl load overload --tenant tenant-b --rps 35 --seconds 900`
 
+## How to read what scrolls past
+
+Each agent works in a loop. Three kinds of line matter:
+
+| Line | Who wrote it | What it is |
+|---|---|---|
+| `Thought:` | Nemotron | The model's reasoning. It can be worded differently each run. |
+| `Action:` and `Action Input:` | Nemotron | The tool the model chose and the arguments it picked. |
+| `Tool's response:` | The MCP server | The real answer from BNK or Run:ai. This is data, not the model talking. |
+
+So the numbers in `Tool's response:` come from BNK itself, and everything the agents conclude has to be
+built on them.
+
+## Ask the team
+
 In **Terminal**:
 
 ```bash
 labctl agents
 ```
 
-Watch the agents work. You should see the lead ask the monitor, the monitor call `list_tenants` and
-`get_tenant_rejections`, then the lead work out the quota: 35 req/s needs at least 35, so 2 GPU (40 req/s)
-in steps of 0.5. The operator calls `approved_quota_change`, and the run stops at a prompt like this:
+Watch the agents work. You should see the lead hand a question to the monitor, the monitor call
+`list_tenants` and `get_tenant_rejections`, and a `Tool's response:` for tenant-b with `"throttled":true`,
+`"offeredRps"` near 35 and `"rateLimitRps":10`. Then the lead works out the quota. 20 req/s per GPU, so
+35 req/s needs 1.75 GPU, which rounds up to 2 GPU (40 req/s) in steps of 0.5. The operator calls
+`approved_quota_change`, and the run stops at a prompt like this:
 
 ```
 Run:ai dry run for project tenant-b: GPU quota 0.5 -> 2 (BNK limit 10 -> 40 req/s). Approve this change? Type yes or no.
@@ -77,14 +94,31 @@ Run:ai dry run for project tenant-b: GPU quota 0.5 -> 2 (BNK limit 10 -> 40 req/
 
 **Type `no`.**
 
-You should see the operator report the decline, and the lead stop without asking again. The model can
-word its reasoning differently from run to run. The prompt and its numbers come from Run:ai's own dry run,
-so they don't change.
+You should see the tool answer `Declined by the operator. Project tenant-b stays at 0.5 GPU. Do not
+retry.`, and the lead stop and report it without asking again.
 
-Check that nothing moved:
+The prompt isn't written by the model. `approved_quota_change` asked Run:ai's MCP server for a dry run, and
+the `0.5 -> 2` in the prompt is Run:ai's own diff. The BNK limit next to it is that quota times 20.
+
+## Proof from the systems, not from the agents
+
+The agents say nothing changed. Check that with the systems themselves.
+
+Run:ai's API, read through the same MCP tool the operator uses, with a dry run that changes nothing.
+Then Run:ai's copy on the cluster, which is what the BNK controller watches. Then BNK:
 
 ```bash,run
-labctl tenant show tenant-b | grep -iE 'gpu deserved|rate limit'
+labctl mcp runai call manage_org_unit '{"action":"update","orgType":"project","name":"tenant-b","spec":{"quota":[{"nodePoolName":"default","gpuDeserved":0.5}]},"dryRun":true}' 2>/dev/null \
+  | jq -r '"Run:ai API      tenant-b quota: \(.before.quota[0].gpuDeserved) GPU"'
+kubectl get projects.kai.resources tenant-b -o jsonpath='Run:ai cluster  tenant-b quota: {.spec.queues[0].resources.gpu.deserved} GPU{"\n"}'
+labctl tenant show tenant-b | grep -i 'rate limit'
 ```
 
-Still 0.5 GPU and 10 req/s, and in **Grafana** tenant-b's 429s carry on.
+You should see 0.5 GPU in Run:ai's API, 0.5 GPU on the cluster, and 10 req/s at BNK. In **Grafana**,
+tenant-b's 429s carry on.
+
+## Replay the run
+
+Open the **Topology** tab and scroll to **Last agent run**. It replays the run you just did from its log:
+each tool call with its arguments, the question you were asked and your `no`. Every `labctl agents` run
+replaces it.

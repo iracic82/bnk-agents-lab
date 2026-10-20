@@ -21,7 +21,7 @@ SLIDES = {
          (B, "Simulated", "The BlueField DPU", "A separate node with a tunnel. The request path is real, DPU offload isn't measured.")]),
     "notes-02": ("Challenge 2 · The tools agents get",
         'Two MCP servers. <c>One</c> can write.',
-        "Before any agent runs, call the same tools by hand. Both servers speak MCP 2026-07-28 with no sessions.",
+        "Before any agent runs, call the same tools by hand, over MCP 2026-07-28 with no sessions. The agents use 2025-11-25, which both servers also speak.",
         [(R, "bnk-tenancy-mcp", "Four read-only tools", "What BNK built for a tenant, its usage, and how many requests it refuses."),
          (G, "Run:ai MCP server", "One write path", "manage_org_unit dry-runs first and refuses to apply without confirm=true."),
          (C, "Stateless", "No session id", "Every request carries its own protocol version. Any replica can answer it.")]),
