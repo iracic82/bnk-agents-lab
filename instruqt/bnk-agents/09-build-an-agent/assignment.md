@@ -59,6 +59,7 @@ Under `functions:`, add the agent:
     llm_name: nemotron
     tool_names: [bnk_usage]
     max_iterations: 6
+    verbose: true
     description: Reports how many tokens a tenant used, from BNK's meter. Read only.
 ```
 
@@ -77,8 +78,8 @@ Run your team:
 AGENTS_CONFIG=/root/my-team.yml labctl agents "How many tokens has tenant-b used?"
 ```
 
-You should see the lead hand the question to `cost_reporter`, which calls `get_tenant_usage` and answers
-with tenant-b's token count. Compare it with BNK's ledger:
+You should see the lead hand the question to `cost_reporter`, then `cost_reporter`'s own step calling
+`bnk_usage__get_tenant_usage` (`verbose: true` is what prints it), and an answer with tenant-b's token count. Compare it with BNK's ledger:
 
 ```bash,run
 labctl tenant show tenant-b | grep tokens
