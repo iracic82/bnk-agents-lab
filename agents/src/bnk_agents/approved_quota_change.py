@@ -6,6 +6,8 @@ person types "yes". The model never sees a confirm argument, so it can't approve
 """
 import json
 import re
+import sys
+import termios
 
 from pydantic import Field
 
@@ -24,6 +26,16 @@ class ApprovedQuotaChangeConfig(FunctionBaseConfig, name="approved_quota_change"
     rps_per_gpu: float = Field(default=20.0, description="BNK requests/s per deserved GPU (tenancy controller policy)")
     max_gpu: float = Field(default=4.0, description="Largest GPU quota the agents may propose")
     gpu_step: float = Field(default=0.5, description="GPU quota must be a whole number of these steps")
+
+
+def _drop_typed_ahead() -> None:
+    """Throw away anything typed before the question appeared, so an early "yes" can't approve a change
+    the person never saw."""
+    try:
+        if sys.stdin.isatty():
+            termios.tcflush(sys.stdin.fileno(), termios.TCIFLUSH)
+    except (OSError, ValueError, termios.error):
+        pass
 
 
 def _gpu(snapshot: dict, pool: str) -> float:
@@ -69,6 +81,7 @@ async def approved_quota_change(config: ApprovedQuotaChangeConfig, builder: Buil
                 f"(BNK limit {before * config.rps_per_gpu:g} -> {after * config.rps_per_gpu:g} req/s). "
                 f"Approve this change? Type yes or no.\n{rule}\n> ")
         manager = Context.get().user_interaction_manager
+        _drop_typed_ahead()
         response = await manager.prompt_user_input(HumanPromptText(text=text, required=True, placeholder="yes or no"))
         if not re.fullmatch(r"yes", response.content.text.strip().lower()):
             return f"Declined by the operator. Project {project} stays at {before:g} GPU. Do not retry."

@@ -49,6 +49,9 @@ mkdir -p "$log_dir"
 printf '# question: %s\n' "$question" > "$log_dir/last-run.log"
 # NAT asks about anonymous usage telemetry on first run. In a shared lab, keep it off and skip the question.
 export NAT_TELEMETRY_ENABLED="${NAT_TELEMETRY_ENABLED:-false}"
+# A healthy reply starts streaming within seconds. Give up on a silent one after 45 s, not 120 s, so the
+# retry in factory-ops.yml kicks in sooner.
+export LANGCHAIN_OPENAI_STREAM_CHUNK_TIMEOUT_S="${LANGCHAIN_OPENAI_STREAM_CHUNK_TIMEOUT_S:-45}"
 # quiet_nat runs NAT's own CLI with tool-registration and import noise turned down.
 cmd=$(printf '%q ' "$VENV/bin/python" -m bnk_agents.quiet_nat run --config_file "${AGENTS_CONFIG:-$HERE/configs/factory-ops.yml}" --input "$question")
 exec script -q -a -e -c "$cmd" "$log_dir/last-run.log"

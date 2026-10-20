@@ -38,9 +38,36 @@ class _Floor(logging.Filter):
         return record.levelno >= logging.WARNING and record.name != "nat.builder.function_info"
 
 
+# When the hosted model fails (a 500 or an empty reply), NAT logs the same error from four places, the
+# last with a 60-line traceback. The agent retries and usually recovers, so keep one plain line instead.
+DUPLICATE_ERRORS = (
+    "nat.builder.function",
+    "nat.plugins.langchain.agent.react_agent.register",
+    "nat.plugins.langchain.agent.react_agent.agent",
+)
+EMPTY_REPLY = "LLM output: ''"
+
+
+class _OneLine(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        if record.levelno < logging.ERROR:
+            return True
+        if record.name in DUPLICATE_ERRORS:
+            return False
+        record.exc_info = None
+        record.exc_text = None
+        if EMPTY_REPLY in record.getMessage():
+            record.msg = ("[AGENT] NVIDIA's model returned an empty reply. The agent will try again; "
+                          "if the run stops, run labctl agents again.")
+            record.args = ()
+        return True
+
+
 def main() -> int:
     for name in QUIET:
         logging.getLogger(name).addFilter(_Floor())
+    for name in DUPLICATE_ERRORS + ("nat.plugins.langchain.agent.base",):
+        logging.getLogger(name).addFilter(_OneLine())
     from nat.cli.main import run_cli
     return run_cli()
 

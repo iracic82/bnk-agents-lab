@@ -10,6 +10,11 @@ llms:
     api_key: ${LLM_API_KEY}
     temperature: 0.0
     max_tokens: 2048
+    # The hosted model sometimes stalls or answers 500. Retry those calls rather than failing the run. A
+    # stall shows up as "No streaming chunk received" (run.sh shortens that wait from 120 s to 45 s).
+    num_retries: 4
+    retry_on_status_codes: [429, 500, 502, 503, 504]
+    retry_on_errors: ["Too Many Requests", "429", "No streaming chunk received", "Failed to generate completions"]
     # Nemotron 3.5 reasons by default and can return the whole answer as reasoning with empty content,
     # which the ReAct parser can't read. NAT's own `thinking` switch doesn't match this model id
     # (its regex wants nvidia/llama* or nvidia/nvidia*), so turn thinking off in the request body.
